@@ -1,5 +1,6 @@
 package com.shopme.admin.controller;
 
+import com.shopme.admin.dto.request.UpdateProfileRequest;
 import com.shopme.admin.dto.request.UserCreateRequest;
 import com.shopme.admin.dto.request.UserUpdateRequest;
 import com.shopme.admin.dto.response.*;
@@ -62,5 +63,17 @@ public class UserController {
     public ApiResponse<List<UserExportResponse>> listAllForExport() {
         var users = userService.listAllForExport();
         return ApiResponse.ok(users);
+    }
+
+    @GetMapping("/profile")
+    public ApiResponse<ProfileDetailResponse> getProfile() {
+        var user = userService.getProfile();
+        return ApiResponse.ok(user);
+    }
+
+    @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse updateProfile(@ModelAttribute UpdateProfileRequest request) {
+        userService.updateProfile(request);
+        return ApiResponse.ok();
     }
 }

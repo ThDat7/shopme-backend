@@ -1,5 +1,6 @@
 package com.shopme.admin.service.impl;
 
+import com.shopme.admin.dto.request.UpdateProfileRequest;
 import com.shopme.admin.dto.request.UserCreateRequest;
 import com.shopme.admin.dto.request.UserUpdateRequest;
 import com.shopme.admin.dto.response.*;
@@ -19,7 +20,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Streamable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -169,5 +173,47 @@ public class UserServiceImpl implements UserService {
         return users.stream()
                 .map(userMapper::toUserExportResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Integer getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            Long userId = jwt.getClaim("userId");
+            return userId.intValue();
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Unauthorized");
+        }
+    }
+
+    @Override
+    public ProfileDetailResponse getProfile() {
+        Integer userId = getCurrentUserId();
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        var userDto = userMapper.toProfileDetailResponse(user);
+        userDto.setPhotos(getUserPhotoURL(user));
+        return userDto;
+    }
+
+    @Override
+    public void updateProfile(UpdateProfileRequest request) {
+        Integer userId = getCurrentUserId();
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        if (request.getImage() != null && !request.getImage().isEmpty()) {
+            String fileName = StringUtils.cleanPath(Objects.requireNonNull(request.getImage().getOriginalFilename()));
+            fileUploadService.userPhotosUpload(request.getImage(), user.getId());
+            user.setPhotos(fileName);
+        }
+
+        userRepository.save(user);
     }
 }

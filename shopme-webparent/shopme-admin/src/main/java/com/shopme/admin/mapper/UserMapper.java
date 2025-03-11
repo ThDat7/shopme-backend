@@ -1,6 +1,7 @@
 package com.shopme.admin.mapper;
 
 import com.shopme.admin.dto.request.UserCreateRequest;
+import com.shopme.admin.dto.response.ProfileDetailResponse;
 import com.shopme.admin.dto.response.UserDetailResponse;
 import com.shopme.admin.dto.response.UserExportResponse;
 import com.shopme.admin.dto.response.UserListResponse;
@@ -24,4 +25,7 @@ public interface UserMapper {
 
     @Mapping(target = "roles", source = "roles", qualifiedByName = "mapRoleNames")
     UserExportResponse toUserExportResponse(User user);
+
+    @Mapping(target = "roles", source = "roles", qualifiedByName = "mapRoleNames")
+    ProfileDetailResponse toProfileDetailResponse(User user);
 }

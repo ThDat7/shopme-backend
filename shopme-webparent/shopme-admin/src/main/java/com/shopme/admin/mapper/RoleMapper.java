@@ -8,27 +8,27 @@ import org.mapstruct.Named;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+ @Mapper(componentModel = "spring")
 public interface RoleMapper {
-    RoleResponse toRoleResponse(Role role);
+     RoleResponse toRoleResponse(Role role);
 
-    @Named("mapRoleIds")
-    default Set<Integer> mapRoleIds(Set<Role> roles) {
-        if (roles == null) {
-            return null;
-        }
-        return roles.stream()
-                .map(Role::getId)
-                .collect(Collectors.toSet());
-    }
+     @Named("mapRoleIds")
+     default Set<Integer> mapRoleIds(Set<Role> roles) {
+     if (roles == null) {
+     return null;
+     }
+     return roles.stream()
+     .map(Role::getId)
+     .collect(Collectors.toSet());
+     }
 
-    @Named("mapRoleNames")
-    default Set<String> mapRoleNames(Set<Role> roles) {
-        if (roles == null) {
-            return null;
-        }
-        return roles.stream()
-                .map(Role::getName)
-                .collect(Collectors.toSet());
-    }
+     @Named("mapRoleNames")
+     default Set<String> mapRoleNames(Set<Role> roles) {
+     if (roles == null) {
+     return null;
+     }
+     return roles.stream()
+     .map(Role::getName)
+     .collect(Collectors.toSet());
+     }
 }

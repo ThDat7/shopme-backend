@@ -1,5 +1,6 @@
 package com.shopme.admin.service;
 
+import com.shopme.admin.dto.request.UpdateProfileRequest;
 import com.shopme.admin.dto.request.UserCreateRequest;
 import com.shopme.admin.dto.request.UserUpdateRequest;
 import com.shopme.admin.dto.response.*;
@@ -23,4 +24,10 @@ public interface UserService {
     void updateUserStatus(Integer id, boolean status);
 
     List<UserExportResponse> listAllForExport();
+
+    Integer getCurrentUserId();
+
+    ProfileDetailResponse getProfile();
+
+    void updateProfile(UpdateProfileRequest request);
 }
