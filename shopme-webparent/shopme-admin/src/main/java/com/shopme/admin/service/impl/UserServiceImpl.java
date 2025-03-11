@@ -7,6 +7,7 @@ import com.shopme.admin.mapper.RoleMapper;
 import com.shopme.admin.mapper.UserMapper;
 import com.shopme.admin.repository.RoleRepository;
 import com.shopme.admin.repository.UserRepository;
+import com.shopme.admin.service.FileUploadService;
 import com.shopme.admin.service.UserService;
 import com.shopme.common.entity.Role;
 import com.shopme.common.entity.User;
@@ -21,11 +22,9 @@ import org.springframework.data.util.Streamable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,8 +39,13 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
+    private FileUploadService fileUploadService;
     private UserMapper userMapper;
     private RoleMapper roleMapper;
+
+    private String getUserPhotoURL(User user) {
+        return fileUploadService.getUserPhotosURL(user.getId(), user.getPhotos());
+    }
 
     @Override
     public ListResponse<UserListResponse> listByPage(Map<String, String> params) {
@@ -57,7 +61,11 @@ public class UserServiceImpl implements UserService {
 
         Page<User> userPage = userRepository.findAll(keyword, pageable);
         List<UserListResponse> userListResponses = userPage.getContent().stream()
-                .map(userMapper::toUserListResponse)
+                .map(user -> {
+                    var userDto = userMapper.toUserListResponse(user);
+                    userDto.setPhotos(getUserPhotoURL(user));
+                    return userDto;
+                })
                 .collect(Collectors.toList());
 
         return ListResponse.<UserListResponse>builder()
@@ -85,6 +93,13 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         userRepository.save(user);
 
+        // Handle image upload if present
+        if (request.getImage() != null && !request.getImage().isEmpty()) {
+            String fileName = StringUtils.cleanPath(Objects.requireNonNull(request.getImage().getOriginalFilename()));
+            fileUploadService.userPhotosUpload(request.getImage(), user.getId());
+            user.setPhotos(fileName);
+        }
+
         return userMapper.toUserDetailResponse(user);
     }
 
@@ -104,7 +119,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetailResponse getUserById(Integer id) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        return userMapper.toUserDetailResponse(user);
+        var userDto = userMapper.toUserDetailResponse(user);
+        userDto.setPhotos(getUserPhotoURL(user));
+        return userDto;
     }
 
     @Override
@@ -128,6 +145,13 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toSet());
         user.setRoles(roles);
 
+        // Handle image upload if present
+        if (request.getImage() != null && !request.getImage().isEmpty()) {
+            String fileName = StringUtils.cleanPath(Objects.requireNonNull(request.getImage().getOriginalFilename()));
+            fileUploadService.userPhotosUpload(request.getImage(), user.getId());
+            user.setPhotos(fileName);
+        }
+
         userRepository.save(user);
         return userMapper.toUserDetailResponse(user);
     }
@@ -146,5 +170,4 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::toUserExportResponse)
                 .collect(Collectors.toList());
     }
-
 }

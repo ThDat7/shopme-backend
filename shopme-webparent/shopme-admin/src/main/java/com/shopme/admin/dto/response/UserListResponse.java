@@ -16,4 +16,5 @@ public class UserListResponse {
     private String lastName;
     private Set<String> roles;
     private Boolean enabled;
+    private String photos;
 }

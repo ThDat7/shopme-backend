@@ -16,4 +16,5 @@ public class UserDetailResponse {
     private String lastName;
     private Set<Integer> roleIds;
     private Boolean enabled;
+    private String photos;
 }

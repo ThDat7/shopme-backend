@@ -1,6 +1,7 @@
 package com.shopme.admin.dto.request;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
@@ -13,4 +14,5 @@ public class UserUpdateRequest {
     private String lastName;
     private Set<Integer> roleIds;
     private Boolean enabled;
+    private MultipartFile image;
 }

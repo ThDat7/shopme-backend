@@ -7,6 +7,7 @@ import java.util.Set;
 @Data
 public class UserExportResponse {
     private Integer id;
+    private String photos;
     private String email;
     private String firstName;
     private String lastName;

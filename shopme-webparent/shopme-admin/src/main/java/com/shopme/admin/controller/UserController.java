@@ -4,6 +4,7 @@ import com.shopme.admin.dto.request.UserCreateRequest;
 import com.shopme.admin.dto.request.UserUpdateRequest;
 import com.shopme.admin.dto.response.*;
 import com.shopme.admin.service.UserService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class UserController {
         return ApiResponse.ok(listResponse);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<UserDetailResponse> createUser(@ModelAttribute UserCreateRequest request) {
         return ApiResponse.ok(userService.createUser(request));
     }
@@ -46,7 +47,7 @@ public class UserController {
         return ApiResponse.ok(user);
     }
 
-    @PutMapping(value = "/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<UserDetailResponse> updateUser(@PathVariable Integer id, @ModelAttribute UserUpdateRequest request) {
         return ApiResponse.ok(userService.updateUser(id, request));
     }
