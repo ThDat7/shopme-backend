@@ -16,20 +16,46 @@ import java.nio.file.StandardCopyOption;
 public class LocalFileUploadServiceImpl implements FileUploadService {
     private final String host;
     private final String suffixUserPhotos;
+    private final String suffixCategoryImages;
 
     public LocalFileUploadServiceImpl(
             @Value("${file.upload.host}") String host,
-            @Value("${file.upload.suffix.user-photos}") String suffixUserPhotos) {
+            @Value("${file.upload.suffix.user-photos}") String suffixUserPhotos,
+            @Value("${file.upload.suffix.category-images}") String suffixCategoryImages) {
         this.host = host;
         this.suffixUserPhotos = suffixUserPhotos;
+        this.suffixCategoryImages = suffixCategoryImages;
     }
 
     public String getUserPhotosURL(Integer userId, String photos) {
         return String.format("%s/%s/%s/%s", host, suffixUserPhotos, userId, photos);
     }
 
+    @Override
+    public String getCategoryImageUrl(Integer categoryId, String image) {
+        return String.format("%s/%s/%s/%s", host, "category-images", categoryId, image);
+    }
+
+    @Override
+    public String categoryImageUpload(MultipartFile file, Integer categoryId) {
+        if (file == null) throw new IllegalArgumentException("File cannot be null");
+
+        if (file.isEmpty()) throw new IllegalArgumentException("File cannot be empty");
+
+        String uploadDir = getCategoryImagesDir(categoryId);
+        String fileName = file.getOriginalFilename();
+
+        cleanDir(uploadDir);
+        saveFile(uploadDir, fileName, file);
+        return fileName;
+    }
+
     private String getUserPhotosDir(Integer userId) {
         return suffixUserPhotos + "/" + userId;
+    }
+
+    private String getCategoryImagesDir(Integer categoryId) {
+        return suffixCategoryImages + "/" + categoryId;
     }
 
     private void saveFile(String uploadDir, String fileName,
