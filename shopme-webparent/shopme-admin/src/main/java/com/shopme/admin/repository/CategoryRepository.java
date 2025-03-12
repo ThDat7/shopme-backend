@@ -12,11 +12,15 @@ import java.util.List;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
+    boolean existsByName(String name);
+
     @Query("SELECT c FROM Category c WHERE c.parent IS NULL")
     Page<Category> findRootCategories(Pageable pageable);
 
     @Query("SELECT c FROM Category c WHERE c.name LIKE %:keyword% OR c.alias LIKE %:keyword%")
     Page<Category> findAll(@Param("keyword") String keyword, Pageable pageable);
+
+    boolean existsByNameAndIdNot(String name, Integer id);
 
     @Query("SELECT COUNT(c) > 0 FROM Category c WHERE c.parent.id = :id")
     Boolean hasChildren(@Param("id") Integer id);
@@ -37,5 +41,19 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     @Query("SELECT c FROM Category c WHERE c.parent.id = :id")
     List<Category> findChildren(@Param("id") Integer id);
+
+    @Query(value = """
+            WITH RECURSIVE category_tree AS (
+                SELECT id, name, alias, parent_id
+                FROM categories
+                WHERE parent_id IS NULL
+                UNION ALL
+                SELECT c.id, c.name, c.alias, c.parent_id
+                FROM categories c
+                INNER JOIN category_tree ct ON c.parent_id = ct.id
+            )
+            SELECT * FROM category_tree
+            """, nativeQuery = true)
+    List<Object[]> findCategoryTree();
 
 }

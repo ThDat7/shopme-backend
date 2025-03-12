@@ -1,8 +1,8 @@
 package com.shopme.admin.service.impl;
 
-import com.shopme.admin.dto.response.CategoryListResponse;
-import com.shopme.admin.dto.response.CategorySearchResponse;
-import com.shopme.admin.dto.response.ListResponse;
+import com.shopme.admin.dto.request.CategoryCreateRequest;
+import com.shopme.admin.dto.request.CategoryUpdateRequest;
+import com.shopme.admin.dto.response.*;
 import com.shopme.admin.mapper.CategoryMapper;
 import com.shopme.admin.repository.CategoryRepository;
 import com.shopme.admin.service.CategoryService;
@@ -15,9 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,6 +92,90 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
+    public CategoryDetailResponse createCategory(CategoryCreateRequest request) {
+
+        if (request.getImage() == null || request.getImage().isEmpty())
+            throw new IllegalArgumentException("Category image is required");
+
+        if (categoryRepository.existsByName(request.getName())) {
+            throw new RuntimeException("Category already exists");
+        }
+
+        Category category = categoryMapper.toEntity(request);
+        Category parent = categoryRepository
+                .findById(request.getParentID()).orElseThrow(() -> new RuntimeException("Parent category not found"));
+        category.setParent(parent);
+
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(request.getImage().getOriginalFilename()));
+        category.setImage(fileName);
+        categoryRepository.save(category);
+        fileUploadService.categoryImageUpload(request.getImage(), category.getId());
+
+        return categoryMapper.toCategoryDetailResponse(category, parent.getId());
+    }
+
+    @Override
+    public void deleteCategory(Integer id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        categoryRepository.delete(category);
+    }
+
+    @Override
+    public CategoryDetailResponse getCategoryById(Integer id) {
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        Integer parentId = category.getParent() == null ? null : category.getParent().getId();
+        var categoryDto = categoryMapper.toCategoryDetailResponse(category, parentId);
+        categoryDto.setImage(getCategoryImageURL(category));
+        return categoryDto;
+    }
+
+    @Override
+    public CategoryDetailResponse updateCategory(Integer id, CategoryUpdateRequest request) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        boolean isNameUnique = !categoryRepository.existsByNameAndIdNot(request.getName(), id);
+        if (!isNameUnique)
+            throw new RuntimeException("Category already exists");
+
+        category.setName(request.getName());
+        category.setAlias(request.getAlias());
+        category.setEnabled(request.isEnabled());
+
+        Category parent = categoryRepository
+                .findById(request.getParentID()).orElseThrow(() -> new RuntimeException("Parent category not found"));
+        category.setParent(parent);
+
+        // Handle image upload if present
+        if (request.getImage() != null && !request.getImage().isEmpty()) {
+            String fileName = StringUtils.cleanPath(Objects.requireNonNull(request.getImage().getOriginalFilename()));
+            fileUploadService.categoryImageUpload(request.getImage(), category.getId());
+            category.setImage(fileName);
+        }
+
+        categoryRepository.save(category);
+        return categoryMapper.toCategoryDetailResponse(category, parent.getId());
+    }
+
+    @Override
+    public void updateCategoryStatus(Integer id, boolean status) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        category.setEnabled(status);
+        categoryRepository.save(category);
+    }
+
+    @Override
+    public List<CategoryExportResponse> listAllForExport() {
+        List<Category> categories = categoryRepository.findAll();
+        return categories.stream()
+                .map(categoryMapper::toCategoryExportResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<CategoryListResponse> listChildren(Integer id) {
         List<Category> children = categoryRepository.findChildren(id);
         return children.stream()
@@ -102,5 +186,34 @@ public class CategoryServiceImpl implements CategoryService {
                     return categoryDto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategorySelectResponse> getAllInForm() {
+        List<Object[]> rawData = categoryRepository.findCategoryTree();
+        Map<Integer, CategorySelectResponse> categoryMap = new HashMap<>();
+        List<CategorySelectResponse> rootCategories = new ArrayList<>();
+
+        for (Object[] row : rawData) {
+            CategorySelectResponse category = new CategorySelectResponse();
+            category.setId((Integer) row[0]);
+            category.setName((String) row[1]);
+            category.setAlias((String) row[2]);
+            category.setChildren(new ArrayList<>());
+
+            categoryMap.put(category.getId(), category);
+
+            Integer parentId = (Integer) row[3];
+            if (parentId == null) {
+                rootCategories.add(category);
+            } else {
+                CategorySelectResponse parent = categoryMap.get(parentId);
+                if (parent != null) {
+                    parent.getChildren().add(category);
+                }
+            }
+        }
+
+        return rootCategories;
     }
 }
