@@ -1,9 +1,7 @@
 package com.shopme.admin.service;
 
 import com.shopme.admin.service.impl.LocalFileUploadServiceImpl;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,22 +24,41 @@ public class FileUploadServiceTest {
     private LocalFileUploadServiceImpl fileUploadService;
 
     private String suffixUserPhotos;
-    private Path uploadPath;
+    private String suffixCategoryImages;
+    private Path userUploadPath;
+    private Path categoryUploadPath;
 
     @BeforeEach
     void setUp() throws IOException {
-        suffixUserPhotos = "test-uploads";
-        var tempPath = Paths.get(suffixUserPhotos);
-        uploadPath = Files.createDirectories(tempPath);
+        String suffixTestFolder = "test-uploads";
+        suffixUserPhotos = String.format("%s/user-photos", suffixTestFolder);
+        suffixCategoryImages = String.format("%s/category-images", suffixTestFolder);
+
+        var userTempPath = Paths.get(suffixUserPhotos);
+        userUploadPath = Files.createDirectories(userTempPath);
+
+        var categoryTempPath = Paths.get(suffixCategoryImages);
+        categoryUploadPath = Files.createDirectories(categoryTempPath);
 
         // Manually inject the properties using ReflectionTestUtils
         ReflectionTestUtils.setField(fileUploadService, "suffixUserPhotos", suffixUserPhotos);
+        ReflectionTestUtils.setField(fileUploadService, "suffixCategoryImages", suffixCategoryImages);
     }
 
     @AfterEach
     void tearDown() throws IOException {
         // Clean up temporary directories
-        Files.walk(uploadPath)
+        Files.walk(userUploadPath)
+                .sorted(Comparator.reverseOrder())
+                .forEach(path -> {
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (IOException e) {
+                        System.err.println("Failed to delete: " + path);
+                    }
+                });
+
+        Files.walk(categoryUploadPath)
                 .sorted(Comparator.reverseOrder())
                 .forEach(path -> {
                     try {
@@ -54,82 +71,172 @@ public class FileUploadServiceTest {
 
     @Test
     void init_CreatesDirectories() {
-        // Assert that directories exist after init
-        assertTrue(Files.exists(uploadPath));
+        assertTrue(Files.exists(userUploadPath));
+        assertTrue(Files.exists(categoryUploadPath));
     }
 
-    @Test
-    void userPhotosUpload_Success() {
-        // Arrange
-        Integer userId = 1;
-        MockMultipartFile file = new MockMultipartFile(
-                "image",
-                "test-image.jpg",
-                "image/jpeg",
-                "test image content".getBytes());
+    @Nested
+    @DisplayName("User Photos Upload Operations")
+    class UserPhotosUploadTests {
+        @Test
+        @DisplayName("Should upload user photo successfully")
+        void userPhotosUpload_Success() {
+            // Arrange
+            Integer userId = 1;
+            MockMultipartFile file = new MockMultipartFile(
+                    "image",
+                    "test-image.jpg",
+                    "image/jpeg",
+                    "test image content".getBytes());
 
-        // Act
-        String savedFileName = fileUploadService.userPhotosUpload(file, userId);
+            // Act
+            String savedFileName = fileUploadService.userPhotosUpload(file, userId);
 
-        // Assert
-        assertNotNull(savedFileName);
-        assertTrue(savedFileName.contains("test-image.jpg"));
-        assertTrue(Files.exists(Paths.get(String.format("%s/%s", suffixUserPhotos, userId), savedFileName)));
+            // Assert
+            assertNotNull(savedFileName);
+            assertTrue(savedFileName.contains("test-image.jpg"));
+            assertTrue(Files.exists(Paths.get(String.format("%s/%s", suffixUserPhotos, userId), savedFileName)));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when IO error occurs")
+        void userPhotosUpload_WithIOException_ThrowsRuntimeException() {
+            // Arrange
+            Integer userId = 1;
+            MockMultipartFile file = new MockMultipartFile(
+                    "image",
+                    "test-image.jpg",
+                    "image/jpeg",
+                    "test image content".getBytes()) {
+                @Override
+                public InputStream getInputStream() throws IOException {
+                    throw new IOException("Test exception");
+                }
+            };
+
+            // Act & Assert
+            Exception exception = assertThrows(RuntimeException.class, () -> {
+                fileUploadService.userPhotosUpload(file, userId);
+            });
+
+            assertTrue(exception.getMessage().contains("Could not save file"));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when file is null")
+        void userPhotosUpload_WithNullFile_ThrowsIllegalArgumentException() {
+            // Arrange
+            Integer userId = 1;
+            MultipartFile file = null;
+
+            // Act & Assert
+            Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+                fileUploadService.userPhotosUpload(file, userId);
+            });
+
+            assertTrue(exception.getMessage().contains("File cannot be null"));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when file is empty")
+        void userPhotosUpload_WithEmptyFile_ThrowsIllegalArgumentException() {
+            // Arrange
+            Integer userId = 1;
+            MockMultipartFile file = new MockMultipartFile(
+                    "image",
+                    "",
+                    "image/jpeg",
+                    new byte[0]);
+
+            // Act & Assert
+            Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+                fileUploadService.userPhotosUpload(file, userId);
+            });
+
+            assertTrue(exception.getMessage().contains("File cannot be empty"));
+        }
     }
 
-    @Test
-    void userPhotosUpload_WithIOException_ThrowsRuntimeException() {
-        // Arrange
-        Integer userId = 1;
-        MockMultipartFile file = new MockMultipartFile(
-                "image",
-                "test-image.jpg",
-                "image/jpeg",
-                "test image content".getBytes()) {
-            @Override
-            public InputStream getInputStream() throws IOException {
-                throw new IOException("Test exception");
-            }
-        };
+    @Nested
+    @DisplayName("Category image Upload Operations")
+    class CategoryImageUploadTests {
+        @Test
+        @DisplayName("Should upload category image successfully")
+        void categoryImageUpload_Success() {
+            // Arrange
+            Integer categoryId = 1;
+            MockMultipartFile file = new MockMultipartFile(
+                    "image",
+                    "test-category.jpg",
+                    "image/jpeg",
+                    "test image content".getBytes());
 
-        // Act & Assert
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            fileUploadService.userPhotosUpload(file, userId);
-        });
+            // Act
+            String savedFileName = fileUploadService.categoryImageUpload(file, categoryId);
 
-        assertTrue(exception.getMessage().contains("Could not save file"));
-    }
+            // Assert
+            assertNotNull(savedFileName);
+            assertTrue(savedFileName.contains("test-category.jpg"));
+            assertTrue(Files
+                    .exists(Paths.get(String.format("%s/%s", suffixCategoryImages, categoryId), savedFileName)));
+        }
 
-    @Test
-    void userPhotosUpload_WithNullFile_ThrowsIllegalArgumentException() {
-        // Arrange
-        Integer userId = 1;
-        MultipartFile file = null;
+        @Test
+        @DisplayName("Should throw exception when IO error occurs")
+        void categoryImageUpload_WithIOException_ThrowsRuntimeException() {
+            // Arrange
+            Integer categoryId = 1;
+            MockMultipartFile file = new MockMultipartFile(
+                    "image",
+                    "test-category.jpg",
+                    "image/jpeg",
+                    "test image content".getBytes()) {
+                @Override
+                public InputStream getInputStream() throws IOException {
+                    throw new IOException("Test exception");
+                }
+            };
 
-        // Act & Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            fileUploadService.userPhotosUpload(file, userId);
-        });
+            // Act & Assert
+            Exception exception = assertThrows(RuntimeException.class, () -> {
+                fileUploadService.categoryImageUpload(file, categoryId);
+            });
 
-        assertTrue(exception.getMessage().contains("File cannot be null"));
+            assertTrue(exception.getMessage().contains("Could not save file"));
+        }
 
-    }
+        @Test
+        @DisplayName("Should throw exception when file is null")
+        void categoryImageUpload_WithNullFile_ThrowsIllegalArgumentException() {
+            // Arrange
+            Integer categoryId = 1;
+            MultipartFile file = null;
 
-    @Test
-    void userPhotosUpload_WithEmptyFile_ThrowsIllegalArgumentException() {
-        // Arrange
-        Integer userId = 1;
-        MockMultipartFile file = new MockMultipartFile(
-                "image",
-                "",
-                "image/jpeg",
-                new byte[0]);
+            // Act & Assert
+            Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+                fileUploadService.categoryImageUpload(file, categoryId);
+            });
 
-        // Act & Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            fileUploadService.userPhotosUpload(file, userId);
-        });
+            assertTrue(exception.getMessage().contains("File cannot be null"));
+        }
 
-        assertTrue(exception.getMessage().contains("File cannot be empty"));
+        @Test
+        @DisplayName("Should throw exception when file is empty")
+        void categoryImageUpload_WithEmptyFile_ThrowsIllegalArgumentException() {
+            // Arrange
+            Integer categoryId = 1;
+            MockMultipartFile file = new MockMultipartFile(
+                    "image",
+                    "",
+                    "image/jpeg",
+                    new byte[0]);
+
+            // Act & Assert
+            Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+                fileUploadService.categoryImageUpload(file, categoryId);
+            });
+
+            assertTrue(exception.getMessage().contains("File cannot be empty"));
+        }
     }
 }
