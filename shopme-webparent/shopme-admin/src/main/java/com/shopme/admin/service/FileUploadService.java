@@ -10,4 +10,8 @@ public interface FileUploadService {
     String getCategoryImageUrl(Integer categoryId, String image);
 
     String categoryImageUpload(MultipartFile file, Integer categoryId);
+
+    String getBrandLogoUrl(Integer brandId, String image);
+
+    String brandLogoUpload(MultipartFile file, Integer brandId);
 }

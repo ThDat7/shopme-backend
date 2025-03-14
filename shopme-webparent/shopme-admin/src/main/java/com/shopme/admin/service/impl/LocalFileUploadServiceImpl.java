@@ -17,46 +17,19 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
     private final String host;
     private final String suffixUserPhotos;
     private final String suffixCategoryImages;
+    private final String suffixBrandLogos;
 
     public LocalFileUploadServiceImpl(
             @Value("${file.upload.host}") String host,
             @Value("${file.upload.suffix.user-photos}") String suffixUserPhotos,
-            @Value("${file.upload.suffix.category-images}") String suffixCategoryImages) {
+            @Value("${file.upload.suffix.category-images}") String suffixCategoryImages,
+            @Value("${file.upload.suffix.brand-logos}") String suffixBrandLogos) {
         this.host = host;
         this.suffixUserPhotos = suffixUserPhotos;
         this.suffixCategoryImages = suffixCategoryImages;
+        this.suffixBrandLogos = suffixBrandLogos;
     }
 
-    public String getUserPhotosURL(Integer userId, String photos) {
-        return String.format("%s/%s/%s/%s", host, suffixUserPhotos, userId, photos);
-    }
-
-    @Override
-    public String getCategoryImageUrl(Integer categoryId, String image) {
-        return String.format("%s/%s/%s/%s", host, "category-images", categoryId, image);
-    }
-
-    @Override
-    public String categoryImageUpload(MultipartFile file, Integer categoryId) {
-        if (file == null) throw new IllegalArgumentException("File cannot be null");
-
-        if (file.isEmpty()) throw new IllegalArgumentException("File cannot be empty");
-
-        String uploadDir = getCategoryImagesDir(categoryId);
-        String fileName = file.getOriginalFilename();
-
-        cleanDir(uploadDir);
-        saveFile(uploadDir, fileName, file);
-        return fileName;
-    }
-
-    private String getUserPhotosDir(Integer userId) {
-        return suffixUserPhotos + "/" + userId;
-    }
-
-    private String getCategoryImagesDir(Integer categoryId) {
-        return suffixCategoryImages + "/" + categoryId;
-    }
 
     private void saveFile(String uploadDir, String fileName,
                           MultipartFile multipartFile) {
@@ -73,7 +46,7 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
         }
     }
 
-    public void cleanDir(String dir) {
+    private void cleanDir(String dir) {
         Path dirPath = Paths.get(dir);
 
         try {
@@ -91,6 +64,8 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
         }
     }
 
+
+    @Override
     public String userPhotosUpload(MultipartFile file, Integer userId) {
         if (file == null) throw new IllegalArgumentException("File cannot be null");
 
@@ -102,6 +77,63 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
         cleanDir(uploadDir);
         saveFile(uploadDir, fileName, file);
         return fileName;
+    }
+
+    @Override
+    public String getUserPhotosURL(Integer userId, String photos) {
+        return String.format("%s/%s/%s/%s", host, suffixUserPhotos, userId, photos);
+    }
+
+    private String getUserPhotosDir(Integer userId) {
+        return suffixUserPhotos + "/" + userId;
+    }
+
+
+    @Override
+    public String categoryImageUpload(MultipartFile file, Integer categoryId) {
+        if (file == null) throw new IllegalArgumentException("File cannot be null");
+
+        if (file.isEmpty()) throw new IllegalArgumentException("File cannot be empty");
+
+        String uploadDir = getCategoryImagesDir(categoryId);
+        String fileName = file.getOriginalFilename();
+
+        cleanDir(uploadDir);
+        saveFile(uploadDir, fileName, file);
+        return fileName;
+    }
+
+    @Override
+    public String getCategoryImageUrl(Integer categoryId, String image) {
+        return String.format("%s/%s/%s/%s", host, "category-images", categoryId, image);
+    }
+
+    private String getCategoryImagesDir(Integer categoryId) {
+        return suffixCategoryImages + "/" + categoryId;
+    }
+
+
+    @Override
+    public String brandLogoUpload(MultipartFile file, Integer brandId) {
+        if (file == null) throw new IllegalArgumentException("File cannot be null");
+
+        if (file.isEmpty()) throw new IllegalArgumentException("File cannot be empty");
+
+        String uploadDir = getBrandLogoDir(brandId);
+        String fileName = file.getOriginalFilename();
+
+        cleanDir(uploadDir);
+        saveFile(uploadDir, fileName, file);
+        return fileName;
+    }
+
+    @Override
+    public String getBrandLogoUrl(Integer brandId, String image) {
+        return String.format("%s/%s/%s/%s", host, "brand-logos", brandId, image);
+    }
+
+    private String getBrandLogoDir(Integer brandId) {
+        return suffixBrandLogos + "/" + brandId;
     }
 
 }

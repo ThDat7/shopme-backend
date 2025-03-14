@@ -8,6 +8,10 @@ import com.shopme.admin.dto.response.CategorySearchResponse;
 import com.shopme.common.entity.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
@@ -21,5 +25,26 @@ public interface CategoryMapper {
 
     @Mapping(target = "image", ignore = true)
     Category toEntity(CategoryCreateRequest request);
+
+
+    @Named("mapCategoryIds")
+    default Set<Integer> mapCategoryIds(Set<Category> categories) {
+        if (categories == null) {
+            return null;
+        }
+        return categories.stream()
+                .map(Category::getId)
+                .collect(Collectors.toSet());
+    }
+
+    @Named("mapCategoryNames")
+    default Set<String> mapCategoryNames(Set<Category> categories) {
+        if (categories == null) {
+            return null;
+        }
+        return categories.stream()
+                .map(Category::getName)
+                .collect(Collectors.toSet());
+    }
 
 }
