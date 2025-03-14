@@ -98,21 +98,23 @@ public class CategoryServiceImpl implements CategoryService {
         if (request.getImage() == null || request.getImage().isEmpty())
             throw new IllegalArgumentException("Category image is required");
 
-        if (categoryRepository.existsByName(request.getName())) {
+        if (categoryRepository.existsByName(request.getName()))
             throw new RuntimeException("Category already exists");
-        }
 
         Category category = categoryMapper.toEntity(request);
-        Category parent = categoryRepository
-                .findById(request.getParentID()).orElseThrow(() -> new RuntimeException("Parent category not found"));
-        category.setParent(parent);
+        Integer parentId = request.getParentID();
+        if (parentId != null) {
+            Category parent = categoryRepository.findById(parentId)
+                    .orElseThrow(() -> new RuntimeException("Parent category not found"));
+            category.setParent(parent);
+        }
 
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(request.getImage().getOriginalFilename()));
         category.setImage(fileName);
         categoryRepository.save(category);
         fileUploadService.categoryImageUpload(request.getImage(), category.getId());
 
-        return categoryMapper.toCategoryDetailResponse(category, parent.getId());
+        return categoryMapper.toCategoryDetailResponse(category, parentId);
     }
 
     @Override
@@ -144,9 +146,14 @@ public class CategoryServiceImpl implements CategoryService {
         category.setAlias(request.getAlias());
         category.setEnabled(request.isEnabled());
 
-        Category parent = categoryRepository
-                .findById(request.getParentID()).orElseThrow(() -> new RuntimeException("Parent category not found"));
-        category.setParent(parent);
+        Integer parentId = request.getParentID();
+        if (parentId != null) {
+            Category parent = categoryRepository.findById(parentId)
+                    .orElseThrow(() -> new RuntimeException("Parent category not found"));
+            category.setParent(parent);
+        } else {
+            category.setParent(null);
+        }
 
         // Handle image upload if present
         if (request.getImage() != null && !request.getImage().isEmpty()) {
@@ -156,7 +163,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         categoryRepository.save(category);
-        return categoryMapper.toCategoryDetailResponse(category, parent.getId());
+        return categoryMapper.toCategoryDetailResponse(category, parentId);
     }
 
     @Override
