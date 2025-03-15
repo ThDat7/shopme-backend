@@ -1,11 +1,11 @@
 package com.shopme.admin.controller;
 
-import com.shopme.admin.dto.response.ApiResponse;
-import com.shopme.admin.dto.response.ListResponse;
-import com.shopme.admin.dto.response.ProductExportResponse;
-import com.shopme.admin.dto.response.ProductListResponse;
+import com.shopme.admin.dto.request.ProductCreateRequest;
+import com.shopme.admin.dto.request.ProductUpdateRequest;
+import com.shopme.admin.dto.response.*;
 import com.shopme.admin.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,10 +23,27 @@ public class ProductController {
         return ApiResponse.ok(listResponse);
     }
 
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<ProductDetailResponse> createProduct(@ModelAttribute ProductCreateRequest request) {
+        return ApiResponse.ok(productService.createProduct(request));
+    }
+
     @DeleteMapping("/{id}")
     public ApiResponse deleteProduct(@PathVariable Integer id) {
         productService.deleteProduct(id);
         return ApiResponse.ok();
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<ProductDetailResponse> getProduct(@PathVariable Integer id) {
+        ProductDetailResponse product = productService.getProductById(id);
+        return ApiResponse.ok(product);
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<ProductDetailResponse> updateProduct(@PathVariable Integer id,
+                                                            @ModelAttribute ProductUpdateRequest request) {
+        return ApiResponse.ok(productService.updateProduct(id, request));
     }
 
     @GetMapping("/all")

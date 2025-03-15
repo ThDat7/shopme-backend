@@ -2,10 +2,7 @@ package com.shopme.admin.service;
 
 import com.shopme.admin.dto.request.BrandCreateRequest;
 import com.shopme.admin.dto.request.BrandUpdateRequest;
-import com.shopme.admin.dto.response.BrandDetailResponse;
-import com.shopme.admin.dto.response.BrandExportResponse;
-import com.shopme.admin.dto.response.BrandListResponse;
-import com.shopme.admin.dto.response.ListResponse;
+import com.shopme.admin.dto.response.*;
 
 import java.util.List;
 import java.util.Map;
@@ -22,4 +19,8 @@ public interface BrandService {
     BrandDetailResponse updateBrand(Integer id, BrandUpdateRequest request);
 
     List<BrandExportResponse> listAllForExport();
+
+    List<FormSelectResponse> listCategoriesFormSelectByBrand(Integer id);
+
+    List<FormSelectResponse> listAllForFormSelection();
 }

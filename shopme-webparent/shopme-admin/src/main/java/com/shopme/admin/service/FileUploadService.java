@@ -14,4 +14,12 @@ public interface FileUploadService {
     String getBrandLogoUrl(Integer brandId, String image);
 
     String brandLogoUpload(MultipartFile file, Integer brandId);
+
+    String getProductMainImageUrl(Integer productId, String image);
+
+    String productMainImageUpload(MultipartFile file, Integer productId);
+
+    String getProductImagesUrl(Integer productId, String image);
+
+    String productImagesUpload(MultipartFile file, Integer productId);
 }

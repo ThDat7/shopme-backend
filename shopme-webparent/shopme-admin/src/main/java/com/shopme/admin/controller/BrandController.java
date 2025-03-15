@@ -52,4 +52,16 @@ public class BrandController {
         var brands = brandService.listAllForExport();
         return ApiResponse.ok(brands);
     }
+
+    @GetMapping("/form-select")
+    public ApiResponse<List<FormSelectResponse>> listAllForFormSelection() {
+        List<FormSelectResponse> brands = brandService.listAllForFormSelection();
+        return ApiResponse.ok(brands);
+    }
+
+    @GetMapping("/{id}/categories")
+    public ApiResponse<List<FormSelectResponse>> listCategoriesByBrand(@PathVariable Integer id) {
+        List<FormSelectResponse> categories = brandService.listCategoriesFormSelectByBrand(id);
+        return ApiResponse.ok(categories);
+    }
 }

@@ -18,16 +18,22 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
     private final String suffixUserPhotos;
     private final String suffixCategoryImages;
     private final String suffixBrandLogos;
+    private final String suffixProductMainImages;
+    private final String suffixProductImages;
 
     public LocalFileUploadServiceImpl(
             @Value("${file.upload.host}") String host,
             @Value("${file.upload.suffix.user-photos}") String suffixUserPhotos,
             @Value("${file.upload.suffix.category-images}") String suffixCategoryImages,
-            @Value("${file.upload.suffix.brand-logos}") String suffixBrandLogos) {
+            @Value("${file.upload.suffix.brand-logos}") String suffixBrandLogos,
+            @Value("${file.upload.suffix.product-main-images}") String suffixProductMainImages,
+            @Value("${file.upload.suffix.product-images}") String suffixProductImages) {
         this.host = host;
         this.suffixUserPhotos = suffixUserPhotos;
         this.suffixCategoryImages = suffixCategoryImages;
         this.suffixBrandLogos = suffixBrandLogos;
+        this.suffixProductMainImages = suffixProductMainImages;
+        this.suffixProductImages = suffixProductImages;
     }
 
 
@@ -134,6 +140,51 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
 
     private String getBrandLogoDir(Integer brandId) {
         return suffixBrandLogos + "/" + brandId;
+    }
+
+
+    @Override
+    public String productMainImageUpload(MultipartFile file, Integer productId) {
+        if (file == null) throw new IllegalArgumentException("File cannot be null");
+
+        if (file.isEmpty()) throw new IllegalArgumentException("File cannot be empty");
+
+        String uploadDir = getProductMainImageDir(productId);
+        String fileName = file.getOriginalFilename();
+
+        saveFile(uploadDir, fileName, file);
+        return fileName;
+    }
+
+    @Override
+    public String getProductMainImageUrl(Integer productId, String image) {
+        return String.format("%s/%s/%s/%s", host, "product-images", productId, image);
+    }
+
+    private String getProductMainImageDir(Integer productId) {
+        return suffixProductMainImages + "/" + productId;
+    }
+
+    @Override
+    public String productImagesUpload(MultipartFile file, Integer productId) {
+        if (file == null) throw new IllegalArgumentException("File cannot be null");
+
+        if (file.isEmpty()) throw new IllegalArgumentException("File cannot be empty");
+
+        String uploadDir = getProductImagesDir(productId);
+        String fileName = file.getOriginalFilename();
+
+        saveFile(uploadDir, fileName, file);
+        return fileName;
+    }
+
+    @Override
+    public String getProductImagesUrl(Integer productId, String image) {
+        return String.format("%s/%s/%s/%s/%s", host, suffixProductMainImages, productId, suffixProductImages, image);
+    }
+
+    private String getProductImagesDir(Integer productId) {
+        return String.format("%s/%s/%s", suffixProductMainImages, productId, suffixProductImages);
     }
 
 }

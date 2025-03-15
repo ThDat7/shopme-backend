@@ -2,11 +2,9 @@ package com.shopme.admin.service.impl;
 
 import com.shopme.admin.dto.request.BrandCreateRequest;
 import com.shopme.admin.dto.request.BrandUpdateRequest;
-import com.shopme.admin.dto.response.BrandDetailResponse;
-import com.shopme.admin.dto.response.BrandExportResponse;
-import com.shopme.admin.dto.response.BrandListResponse;
-import com.shopme.admin.dto.response.ListResponse;
+import com.shopme.admin.dto.response.*;
 import com.shopme.admin.mapper.BrandMapper;
+import com.shopme.admin.mapper.UtilMapper;
 import com.shopme.admin.repository.BrandRepository;
 import com.shopme.admin.repository.CategoryRepository;
 import com.shopme.admin.service.BrandService;
@@ -35,6 +33,7 @@ public class BrandServiceImpl implements BrandService {
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
     private final BrandMapper brandMapper;
+    private final UtilMapper utilMapper;
     private final FileUploadService fileUploadService;
 
     private String getBrandLogoURL(Brand brand) {
@@ -152,6 +151,23 @@ public class BrandServiceImpl implements BrandService {
         List<Brand> brands = brandRepository.findAll();
         return brands.stream()
                 .map(brandMapper::toBrandExportResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FormSelectResponse> listCategoriesFormSelectByBrand(Integer id) {
+        Brand brand = brandRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Brand not found"));
+        return brand.getCategories().stream()
+                .map(i -> utilMapper.toFormSelectResponse(i.getId().toString(), i.getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FormSelectResponse> listAllForFormSelection() {
+        List<Brand> brands = brandRepository.findAll();
+        return brands.stream()
+                .map(i -> utilMapper.toFormSelectResponse(i.getId().toString(), i.getName()))
                 .collect(Collectors.toList());
     }
 }
