@@ -3,10 +3,7 @@ package com.shopme.admin.service.impl;
 import com.shopme.admin.dto.request.ProductCreateRequest;
 import com.shopme.admin.dto.request.ProductSpecificRequest;
 import com.shopme.admin.dto.request.ProductUpdateRequest;
-import com.shopme.admin.dto.response.ListResponse;
-import com.shopme.admin.dto.response.ProductDetailResponse;
-import com.shopme.admin.dto.response.ProductExportResponse;
-import com.shopme.admin.dto.response.ProductListResponse;
+import com.shopme.admin.dto.response.*;
 import com.shopme.admin.mapper.ProductMapper;
 import com.shopme.admin.repository.*;
 import com.shopme.admin.service.FileUploadService;
@@ -47,9 +44,12 @@ public class ProductServiceImpl implements ProductService {
         return fileUploadService.getProductMainImageUrl(product.getId(), product.getMainImage());
     }
 
-    private Set<String> getProductImageURLs(Product product) {
+    private Set<ProductImageResponse> getProductImageResponses(Product product) {
         return product.getImages().stream()
-                .map(image -> fileUploadService.getProductImagesUrl(product.getId(), image.getName()))
+                .map(image -> ProductImageResponse.builder()
+                        .id(image.getId())
+                        .url(fileUploadService.getProductImagesUrl(product.getId(), image.getName()))
+                        .build())
                 .collect(Collectors.toSet());
     }
 
@@ -103,8 +103,8 @@ public class ProductServiceImpl implements ProductService {
         String mainImageName = request.getMainImage().getOriginalFilename();
         product.setMainImage(mainImageName);
         productRepository.save(product);
-        setProductMainImage(product, request.getMainImage());
-        setProductImages(product, request.getImages());
+        uploadAndSetProductMainImage(product, request.getMainImage());
+        uploadAndSetProductImages(product, request.getImages());
 
         return productMapper.toProductDetailResponse(product);
     }
@@ -123,11 +123,11 @@ public class ProductServiceImpl implements ProductService {
         setBrandAndCategory(product, request.getBrandId(), request.getCategoryId());
         setProductDetails(product, request.getDetails());
 
-        if (request.getMainImage() != null && !request.getMainImage().isEmpty())
-            setProductMainImage(product, request.getMainImage());
 
-        if (request.getImages() != null && !request.getImages().isEmpty())
-            setProductImages(product, request.getImages());
+        if (request.getMainImage() != null && !request.getMainImage().isEmpty())
+            uploadAndSetProductMainImage(product, request.getMainImage());
+
+        handleUpdateProductImages(product, request.getRemainingImageIds(), request.getImages());
 
         productRepository.save(product);
         return productMapper.toProductDetailResponse(product);
@@ -141,14 +141,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDetailResponse getProductById(Integer id) {
-        Product product = productRepository.findByIdWithImages(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-        // Product product = productRepository.findById(id).orElseThrow(() -> new
-        // RuntimeException("Product not
-        // found"));
+
         var productDto = productMapper.toProductDetailResponse(product);
         productDto.setMainImage(getProductMainImageURL(product));
-        productDto.setImages(getProductImageURLs(product));
+        productDto.setImages(getProductImageResponses(product));
         return productDto;
     }
 
@@ -181,34 +179,36 @@ public class ProductServiceImpl implements ProductService {
         product.setBrand(brand);
     }
 
-    private void setProductImages(Product product, Set<MultipartFile> images) {
+    private void uploadAndSetProductImages(Product product, Set<MultipartFile> images) {
         if (images == null || images.isEmpty())
             return;
 
-        // Get existing images
-        Set<String> existingImageNames = product.getImages() != null ? product.getImages().stream()
-                .map(ProductImage::getName)
-                .collect(Collectors.toSet()) : new HashSet<>();
-
         for (MultipartFile image : images) {
             String fileName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
-
-            if (!existingImageNames.contains(fileName)) {
-                ProductImage productImage = new ProductImage();
-                productImage.setName(fileName);
-                productImage.setProduct(product);
-
-                if (product.getImages() == null) {
-                    product.setImages(new HashSet<>());
-                }
-                product.getImages().add(productImage);
-
-                fileUploadService.productImagesUpload(image, product.getId());
+            if (fileName.isEmpty()) {
+                continue;
             }
+
+            ProductImage productImage = new ProductImage();
+            productImage.setName(fileName);
+            productImage.setProduct(product);
+            product.getImages().add(productImage);
+
+            fileUploadService.productImagesUpload(image, product.getId());
         }
     }
 
-    private void setProductMainImage(Product product, MultipartFile mainImage) {
+    private void removeDeletedImage(Product product, Set<Integer> remainingImageIds) {
+        if (product.getImages() == null)
+            return;
+
+        if (remainingImageIds == null)
+            product.getImages().clear();
+
+        product.getImages().removeIf(image -> !remainingImageIds.contains(image.getId()));
+    }
+
+    private void uploadAndSetProductMainImage(Product product, MultipartFile mainImage) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(mainImage.getOriginalFilename()));
         product.setMainImage(fileName);
         fileUploadService.productMainImageUpload(mainImage, product.getId());
@@ -254,5 +254,13 @@ public class ProductServiceImpl implements ProductService {
         product.setWidth(request.getWidth());
         product.setHeight(request.getHeight());
         product.setWeight(request.getWeight());
+    }
+
+    private void handleUpdateProductImages(Product product, Set<Integer> remainingImageIdsToKeep, Set<MultipartFile> newImages) {
+        if (product.getImages() == null)
+            product.setImages(new HashSet<>());
+
+        removeDeletedImage(product, remainingImageIdsToKeep);
+        uploadAndSetProductImages(product, newImages);
     }
 }

@@ -33,6 +33,8 @@ public interface ProductMapper {
     @Mapping(target = "category", source = "category.name")
     ProductListResponse toProductListResponse(Product product);
 
+    @Mapping(target = "brand", source = "brand.name")
+    @Mapping(target = "category", source = "category.name")
     ProductExportResponse toProductExportResponse(Product product);
 
     ProductSpecificResponse toProductSpecificResponse(ProductDetail productDetail);

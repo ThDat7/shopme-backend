@@ -38,6 +38,6 @@ public class ProductDetailResponse {
     private Integer categoryId;
     private Integer brandId;
 
-    private Set<String> images;
+    private Set<ProductImageResponse> images;
     private List<ProductSpecificResponse> details;
 }

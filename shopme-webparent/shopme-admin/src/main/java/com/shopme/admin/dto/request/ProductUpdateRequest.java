@@ -13,4 +13,5 @@ import java.util.Set;
 public class ProductUpdateRequest extends BaseProductRequest {
     private MultipartFile mainImage;
     private Set<MultipartFile> images;
+    private Set<Integer> remainingImageIds;
 }
