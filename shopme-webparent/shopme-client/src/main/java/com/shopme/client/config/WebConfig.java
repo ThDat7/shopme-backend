@@ -19,4 +19,21 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        exposeDirectory("../category-images", registry);
+        exposeDirectory("../brand-logos", registry);
+        exposeDirectory("../product-images", registry);
+    }
+
+    private void exposeDirectory(String pathPattern, ResourceHandlerRegistry registry) {
+        Path path = Paths.get(pathPattern);
+        String absolutePath = path.toFile().getAbsolutePath();
+
+        String logicalPath = pathPattern.replace("../", "") + "/**";
+
+        registry.addResourceHandler(logicalPath)
+                .addResourceLocations("file:/" + absolutePath + "/");
+    }
 }
