@@ -10,6 +10,11 @@ import java.util.List;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
+    @Query("SELECT c FROM Category c LEFT JOIN c.children children WHERE children IS NULL")
+    List<Category> findLeafCategories();
+
+    List<Category> findByParentId(Integer parentId);
+
     @Query(value = """
             WITH RECURSIVE category_parent AS (
                         SELECT c.id, c.name, c.parent_id
