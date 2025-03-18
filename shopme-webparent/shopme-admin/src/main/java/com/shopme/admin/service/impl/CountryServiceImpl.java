@@ -64,6 +64,7 @@ public class CountryServiceImpl implements CountryService {
             throw new RuntimeException("Country already exists");
 
         Country country = countryMapper.toEntity(request);
+        countryRepository.save(country);
         return countryMapper.toCountryDetailResponse(country);
     }
 

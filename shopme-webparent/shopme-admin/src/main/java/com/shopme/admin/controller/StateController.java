@@ -26,7 +26,7 @@ public class StateController {
     }
 
     @PostMapping
-    public ApiResponse<StateDetailResponse> createState(@ModelAttribute StateCreateRequest request) {
+    public ApiResponse<StateDetailResponse> createState(@RequestBody StateCreateRequest request) {
         return ApiResponse.ok(stateService.createState(request));
     }
 
@@ -44,7 +44,7 @@ public class StateController {
 
     @PutMapping(value = "/{id}")
     public ApiResponse<StateDetailResponse> updateState(@PathVariable Integer id,
-                                                        @ModelAttribute StateUpdateRequest request) {
+                                                        @RequestBody StateUpdateRequest request) {
         return ApiResponse.ok(stateService.updateState(id, request));
     }
 }

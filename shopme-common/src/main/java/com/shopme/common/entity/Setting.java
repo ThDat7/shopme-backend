@@ -14,7 +14,7 @@ public class Setting {
 	@Id
 	@Column(name = "`key`", nullable = false, length = 128)
 	private String key;
-
+	
 	@Column(nullable = false, length = 1024)
 	private String value;
 
@@ -31,17 +31,16 @@ public class Setting {
 	}
 
 	@Builder
-	public Setting(SettingKey key, String value) {
+	public Setting(SettingKey key, String value, SettingCategory category) {
 		this.key = key.name();
 		this.value = value;
+		this.category = category;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 		Setting setting = (Setting) o;
 		return Objects.equals(key, setting.key);
 	}

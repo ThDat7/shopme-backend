@@ -9,6 +9,7 @@ import com.shopme.admin.service.SettingService;
 import com.shopme.common.dto.response.ApiResponse;
 import com.shopme.common.entity.SettingCategory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,8 +31,8 @@ public class SettingController {
         return ApiResponse.ok(settingService.listBySettingCategory(category));
     }
 
-    @PostMapping("/categories/general")
-    public ApiResponse<List<SettingResponse>> updateGeneralSettings(@RequestBody GeneralSettingsRequest generalSettingsRequest) {
+    @PostMapping(value = "/categories/general", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<List<SettingResponse>> updateGeneralSettings(@ModelAttribute GeneralSettingsRequest generalSettingsRequest) {
         return  ApiResponse.ok(settingService.updateGeneralSettings(generalSettingsRequest));
     }
 

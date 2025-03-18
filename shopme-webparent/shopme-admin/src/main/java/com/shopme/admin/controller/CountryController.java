@@ -29,7 +29,7 @@ public class CountryController {
     }
 
     @PostMapping
-    public ApiResponse<CountryDetailResponse> createCountry(@ModelAttribute CountryCreateRequest request) {
+    public ApiResponse<CountryDetailResponse> createCountry(@RequestBody CountryCreateRequest request) {
         return ApiResponse.ok(countryService.createCountry(request));
     }
 
@@ -47,7 +47,7 @@ public class CountryController {
 
     @PutMapping(value = "/{id}")
     public ApiResponse<CountryDetailResponse> updateCountry(@PathVariable Integer id,
-                                                        @ModelAttribute CountryUpdateRequest request) {
+                                                        @RequestBody CountryUpdateRequest request) {
         return ApiResponse.ok(countryService.updateCountry(id, request));
     }
 

@@ -58,6 +58,7 @@ public class SettingServiceImpl implements SettingService {
 
         Setting siteLogoSetting = Setting.builder()
                 .key(SettingKey.SITE_LOGO)
+                .category(SettingCategory.GENERAL)
                 .build();
 
         if (siteLogoFile != null && !siteLogoFile.isEmpty()) {

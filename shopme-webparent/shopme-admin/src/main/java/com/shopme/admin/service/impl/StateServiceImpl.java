@@ -73,6 +73,7 @@ public class StateServiceImpl implements StateService {
         Country country = countryRepository.findById(request.getCountryId())
                 .orElseThrow(() -> new RuntimeException("Country not found"));
         state.setCountry(country);
+        stateRepository.save(state);
 
         return stateMapper.toStateDetailResponse(state);
     }
