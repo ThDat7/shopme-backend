@@ -22,4 +22,8 @@ public interface FileUploadService {
     String getProductImagesUrl(Integer productId, String image);
 
     String productImagesUpload(MultipartFile file, Integer productId);
+
+    String getSiteLogoUrl(String fileName);
+
+    String siteLogoUpload(MultipartFile file);
 }

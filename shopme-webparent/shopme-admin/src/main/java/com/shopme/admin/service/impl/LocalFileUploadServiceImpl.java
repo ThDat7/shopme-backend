@@ -20,6 +20,7 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
     private final String suffixBrandLogos;
     private final String suffixProductMainImages;
     private final String suffixProductImages;
+    private final String suffixSiteLogo;
 
     public LocalFileUploadServiceImpl(
             @Value("${file.upload.host}") String host,
@@ -27,13 +28,15 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
             @Value("${file.upload.suffix.category-images}") String suffixCategoryImages,
             @Value("${file.upload.suffix.brand-logos}") String suffixBrandLogos,
             @Value("${file.upload.suffix.product-main-images}") String suffixProductMainImages,
-            @Value("${file.upload.suffix.product-images}") String suffixProductImages) {
+            @Value("${file.upload.suffix.product-images}") String suffixProductImages,
+            @Value("${file.upload.suffix.site-logo}") String suffixSiteLogo) {
         this.host = host;
         this.suffixUserPhotos = suffixUserPhotos;
         this.suffixCategoryImages = suffixCategoryImages;
         this.suffixBrandLogos = suffixBrandLogos;
         this.suffixProductMainImages = suffixProductMainImages;
         this.suffixProductImages = suffixProductImages;
+        this.suffixSiteLogo = suffixSiteLogo;
     }
 
 
@@ -143,6 +146,8 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
     }
 
 
+
+
     @Override
     public String productMainImageUpload(MultipartFile file, Integer productId) {
         if (file == null) throw new IllegalArgumentException("File cannot be null");
@@ -185,6 +190,24 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
 
     private String getProductImagesDir(Integer productId) {
         return String.format("%s/%s/%s", suffixProductMainImages, productId, suffixProductImages);
+    }
+
+    @Override
+    public String getSiteLogoUrl(String fileName) {
+        return String.format("%s/%s/%s", host, "site-logo", fileName);
+    }
+
+    @Override
+    public String siteLogoUpload(MultipartFile file) {
+        if (file == null) throw new IllegalArgumentException("File cannot be null");
+
+        if (file.isEmpty()) throw new IllegalArgumentException("File cannot be empty");
+
+        String uploadDir = suffixSiteLogo + "/";
+        String fileName = file.getOriginalFilename();
+
+        saveFile(uploadDir, fileName, file);
+        return fileName;
     }
 
 }
