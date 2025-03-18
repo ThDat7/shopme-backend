@@ -1,6 +1,9 @@
 package com.shopme.admin.controller;
 
+import com.shopme.admin.dto.request.CurrencySettingsRequest;
 import com.shopme.admin.dto.request.GeneralSettingsRequest;
+import com.shopme.admin.dto.request.OtherSettingRequest;
+import com.shopme.admin.dto.response.CurrencySelectResponse;
 import com.shopme.admin.dto.response.SettingResponse;
 import com.shopme.admin.service.SettingService;
 import com.shopme.common.dto.response.ApiResponse;
@@ -30,5 +33,20 @@ public class SettingController {
     @PostMapping("/categories/general")
     public ApiResponse<List<SettingResponse>> updateGeneralSettings(@RequestBody GeneralSettingsRequest generalSettingsRequest) {
         return  ApiResponse.ok(settingService.updateGeneralSettings(generalSettingsRequest));
+    }
+
+    @PostMapping("/categories/currency")
+    public ApiResponse<List<SettingResponse>> updateCurrencySettings(@RequestBody CurrencySettingsRequest currencySettingsRequest) {
+        return  ApiResponse.ok(settingService.updateCurrencySettings(currencySettingsRequest));
+    }
+
+    @PostMapping("/categories/other")
+    public ApiResponse<List<SettingResponse>> saveOtherSettings(@RequestBody Set<OtherSettingRequest> otherSettingRequests) {
+        return  ApiResponse.ok(settingService.saveOtherSettings(otherSettingRequests));
+    }
+
+    @GetMapping("/currencies")
+    public ApiResponse<List<CurrencySelectResponse>> listCurrencies() {
+        return ApiResponse.ok(settingService.listCurrencies());
     }
 }

@@ -1,8 +1,12 @@
 package com.shopme.admin.service.impl;
 
+import com.shopme.admin.dto.request.CurrencySettingsRequest;
 import com.shopme.admin.dto.request.GeneralSettingsRequest;
+import com.shopme.admin.dto.request.OtherSettingRequest;
+import com.shopme.admin.dto.response.CurrencySelectResponse;
 import com.shopme.admin.dto.response.SettingResponse;
 import com.shopme.admin.mapper.SettingMapper;
+import com.shopme.admin.repository.CurrencyRepository;
 import com.shopme.admin.repository.SettingRepository;
 import com.shopme.admin.service.FileUploadService;
 import com.shopme.admin.service.SettingService;
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SettingServiceImpl implements SettingService {
     private final SettingRepository settingRepository;
+    private final CurrencyRepository currencyRepository;
     private final FileUploadService fileUploadService;
     private final SettingMapper settingMapper;
 
@@ -69,5 +74,44 @@ public class SettingServiceImpl implements SettingService {
                 .map(settingMapper::toSettingResponse)
                 .collect(Collectors.toList());
 
+    }
+
+    @Override
+    public List<SettingResponse> updateCurrencySettings(CurrencySettingsRequest currencySettingsRequest) {
+        List<Setting> currencySettings = settingMapper.toSettings(currencySettingsRequest);
+        settingRepository.saveAll(currencySettings);
+
+        return currencySettings.stream()
+                .map(settingMapper::toSettingResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SettingResponse> saveOtherSettings(Set<OtherSettingRequest> request) {
+        List<Setting> otherSettings = settingRepository.findAllByCategory(SettingCategory.OTHER);
+        Set<String> requestKeys = request.stream()
+                .map(OtherSettingRequest::getKey)
+                .collect(Collectors.toSet());
+
+        List<Setting> toDelete = otherSettings.stream()
+                .filter(setting -> !requestKeys.contains(setting.getKey()))
+                .toList();
+        settingRepository.deleteAll(toDelete);
+
+        List<Setting> toSave = request.stream()
+                .map(settingMapper::toSetting)
+                .toList();
+        settingRepository.saveAll(toSave);
+
+        return toSave.stream()
+                .map(settingMapper::toSettingResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CurrencySelectResponse> listCurrencies() {
+        return currencyRepository.findAll().stream()
+                .map(settingMapper::toCurrencySelectResponse)
+                .collect(Collectors.toList());
     }
 }
