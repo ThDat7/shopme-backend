@@ -33,11 +33,12 @@ public class WebSecurityConfig {
 
         http.authorizeHttpRequests(request ->
                 request
-                        .requestMatchers("/api/users/**").hasAuthority("Admin")
-                        .requestMatchers("/api/categories/**").hasAnyAuthority("Admin", "Editor")
-                        .requestMatchers("/api/brands/**").hasAnyAuthority("Admin", "Editor")
-                        .requestMatchers("/products/**").hasAnyAuthority("Admin", "Editor")
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/v1/users/**").hasAuthority("Admin")
+                        .requestMatchers("/api/v1/categories/**").hasAnyAuthority("Admin", "Editor")
+                        .requestMatchers("/api/v1/brands/**").hasAnyAuthority("Admin", "Editor")
+                        .requestMatchers("/api/v1/products/**").hasAnyAuthority("Admin", "Editor")
+                        .requestMatchers("/api/v1/shipping-rates/**").hasAnyAuthority("Admin")
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated()
 
         );
