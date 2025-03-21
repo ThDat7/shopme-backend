@@ -9,7 +9,8 @@ public class CartItemResponse {
     private Integer productId;
     private String name;
     private float price;
-    private float discount;
+    private float discountPercent;
+    private float discountPrice;
     private String mainImage;
     private Integer quantity;
 }
