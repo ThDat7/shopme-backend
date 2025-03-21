@@ -63,6 +63,9 @@ public class Order {
 	private Date deliverDate;
 	
 	@Enumerated(EnumType.STRING)
+	private PaymentMethod paymentMethod;
+	
+	@Enumerated(EnumType.STRING)
 	private OrderStatus status;
 	
 	@ManyToOne
@@ -71,4 +74,8 @@ public class Order {
 	
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<OrderDetail> orderDetails = new HashSet<>();
+	
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OrderBy("updatedTime ASC")
+	private List<OrderTrack> orderTracks = new ArrayList<>();
 }

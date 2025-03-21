@@ -3,6 +3,7 @@ package com.shopme.admin.service.impl;
 import com.shopme.admin.dto.request.CurrencySettingsRequest;
 import com.shopme.admin.dto.request.GeneralSettingsRequest;
 import com.shopme.admin.dto.request.OtherSettingRequest;
+import com.shopme.admin.dto.request.PaymentSettingsRequest;
 import com.shopme.admin.dto.response.CurrencySelectResponse;
 import com.shopme.admin.dto.response.SettingResponse;
 import com.shopme.admin.mapper.SettingMapper;
@@ -113,6 +114,16 @@ public class SettingServiceImpl implements SettingService {
     public List<CurrencySelectResponse> listCurrencies() {
         return currencyRepository.findAll().stream()
                 .map(settingMapper::toCurrencySelectResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SettingResponse> updatePaymentSettings(PaymentSettingsRequest paymentSettingsRequests) {
+        List<Setting> paymentSettings = settingMapper.toSettings(paymentSettingsRequests);
+        settingRepository.saveAll(paymentSettings);
+
+        return paymentSettings.stream()
+                .map(settingMapper::toSettingResponse)
                 .collect(Collectors.toList());
     }
 }

@@ -3,6 +3,7 @@ package com.shopme.admin.service;
 import com.shopme.admin.dto.request.CurrencySettingsRequest;
 import com.shopme.admin.dto.request.GeneralSettingsRequest;
 import com.shopme.admin.dto.request.OtherSettingRequest;
+import com.shopme.admin.dto.request.PaymentSettingsRequest;
 import com.shopme.admin.dto.response.CurrencySelectResponse;
 import com.shopme.admin.dto.response.SettingResponse;
 import com.shopme.common.dto.response.ApiResponse;
@@ -23,4 +24,6 @@ public interface SettingService {
     List<SettingResponse> saveOtherSettings(Set<OtherSettingRequest> otherSettingRequests);
 
     List<CurrencySelectResponse> listCurrencies();
+
+    List<SettingResponse> updatePaymentSettings(PaymentSettingsRequest paymentSettingsRequest);
 }

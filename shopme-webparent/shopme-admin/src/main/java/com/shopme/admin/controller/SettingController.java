@@ -3,6 +3,7 @@ package com.shopme.admin.controller;
 import com.shopme.admin.dto.request.CurrencySettingsRequest;
 import com.shopme.admin.dto.request.GeneralSettingsRequest;
 import com.shopme.admin.dto.request.OtherSettingRequest;
+import com.shopme.admin.dto.request.PaymentSettingsRequest;
 import com.shopme.admin.dto.response.CurrencySelectResponse;
 import com.shopme.admin.dto.response.SettingResponse;
 import com.shopme.admin.service.SettingService;
@@ -44,6 +45,11 @@ public class SettingController {
     @PostMapping("/categories/other")
     public ApiResponse<List<SettingResponse>> saveOtherSettings(@RequestBody Set<OtherSettingRequest> otherSettingRequests) {
         return  ApiResponse.ok(settingService.saveOtherSettings(otherSettingRequests));
+    }
+
+    @PostMapping("/categories/payment")
+    public ApiResponse<List<SettingResponse>> updatePaymentSettings(@RequestBody PaymentSettingsRequest paymentSettingsRequest) {
+        return  ApiResponse.ok(settingService.updatePaymentSettings(paymentSettingsRequest));
     }
 
     @GetMapping("/currencies")

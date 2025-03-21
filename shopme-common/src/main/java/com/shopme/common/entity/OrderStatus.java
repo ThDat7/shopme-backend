@@ -6,8 +6,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum OrderStatus {
+
+	// Online Payment Status
+	PENDING_PAYMENT("Payment is pending"),
+	PAID("Customer has paid this order"),
+	CANCELLED_PAYMENT("Payment was cancelled"),
+
+	// COD Payment Status
 	NEW("Order was placed by the customer"),
 	CANCELLED("Order was rejected"),
+
+	// Order Processing Status
 	PROCESSING("Order is being processed"),
 	PACKAGED("Products were packaged"),
 	PICKED("Shipper picked the package"),

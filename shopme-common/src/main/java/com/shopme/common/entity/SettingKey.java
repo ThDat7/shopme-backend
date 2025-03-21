@@ -18,7 +18,12 @@ public enum SettingKey {
     CURRENCY_SYMBOL_POSITION(SettingCategory.CURRENCY),
     DECIMAL_DIGITS(SettingCategory.CURRENCY),
     DECIMAL_POINT_TYPE(SettingCategory.CURRENCY),
-    THOUSANDS_POINT_TYPE(SettingCategory.CURRENCY);
+    THOUSANDS_POINT_TYPE(SettingCategory.CURRENCY),
+
+    // Payment Settings
+    PAYOS_CLIENT_ID(SettingCategory.PAYMENT),
+    PAYOS_API_KEY(SettingCategory.PAYMENT),
+    PAYOS_CHECKSUM_KEY(SettingCategory.PAYMENT);
 
     private final SettingCategory category;
 }
