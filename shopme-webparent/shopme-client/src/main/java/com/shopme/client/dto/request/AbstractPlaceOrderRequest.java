@@ -1,15 +1,14 @@
 package com.shopme.client.dto.request;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@Builder
-public class PlaceOrderRequest {
+@Getter
+@Setter
+public class AbstractPlaceOrderRequest {
     private List<Integer> cartItemIds;
     private Integer addressId;
 }
