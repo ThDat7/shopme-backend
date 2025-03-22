@@ -11,4 +11,6 @@ public interface PaymentService {
     CheckoutResponseData generatePayOSResponse(Order order, String returnUrl, String cancelUrl);
 
     PayOSACKResponse handlePayOSWebhook(Webhook webhookBody, BiConsumer<Long, Integer> onOrderPaid);
+
+    void cancelPayOSPayment(long orderId);
 }

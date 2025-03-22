@@ -69,4 +69,14 @@ public class PaymentServiceImpl implements PaymentService {
         }
         return PayOSACKResponse.builder().success(true).build();
     }
+
+    @Override
+    public void cancelPayOSPayment(long orderId) {
+        try {
+            String cancelReason = "User cancelled the order";
+            payOS.cancelPaymentLink(orderId, cancelReason);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to cancel PayOS payment: ", e);
+        }
+    }
 }
