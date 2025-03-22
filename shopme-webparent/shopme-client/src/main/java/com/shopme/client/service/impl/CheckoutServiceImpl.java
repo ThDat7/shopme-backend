@@ -37,13 +37,6 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     private final CheckoutMapper checkoutMapper;
 
-    @Override
-    public List<PaymentMethodResponse> getPaymentMethods() {
-        return Arrays.stream(PaymentMethod.values())
-                .map(checkoutMapper::toPaymentMethodResponse)
-                .toList();
-    }
-
     private List<CartItem> getCartItems(List<Integer> cartItemIds) {
         Integer currentCustomerId = authenticationService.getCurrentCustomerId();
         return cartItemRepository.findAllByCustomerIdAndProductIdIn(currentCustomerId, cartItemIds);
@@ -131,6 +124,8 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .customer(currentCustomer)
                 .orderDetails(orderDetails)
                 .build();
+        orderDetails.forEach(orderDetail -> orderDetail.setOrder(order));
+
         setOrderAddress(order, address);
         setOrderShipping(order, address);
         setOrderCost(order);
@@ -176,14 +171,14 @@ public class CheckoutServiceImpl implements CheckoutService {
     }
 
     private void onPaymentSuccess(Long orderId, Integer amount) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
-        Order order = orderRepository.findByIdAndCustomerId(orderId.intValue(), currentCustomerId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        Optional<Order> opOrder = orderRepository.findById(orderId.intValue());
+        if (opOrder.isEmpty())
+            return;
+        Order order = opOrder.get();
         boolean isMatchAmount = Math.round(order.getTotal()) == amount;
-        if (!isMatchAmount)
-            throw new IllegalArgumentException("Amount not match");
+        if (isMatchAmount)
+            order.setStatus(OrderStatus.PAID);
 
-        order.setStatus(OrderStatus.PAID);
         orderRepository.save(order);
     }
 
