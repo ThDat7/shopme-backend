@@ -33,4 +33,7 @@ public class OrderDetail {
 	@ManyToOne
 	@JoinColumn(name = "order_id")
 	private Order order;
+
+	@OneToOne(cascade = CascadeType.ALL, mappedBy = "orderDetail")
+	private Review review;
 }
