@@ -17,4 +17,11 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
     Page<Review> findAllByProductIdAndRating(@Param("productId") Integer productId,
                                     @Param("rating") Integer rating,
                                     Pageable pageable);
+
+    @Query("SELECT r FROM Review r WHERE r.orderDetail.order.customer.id = :customerId")
+    Optional<Review> findByCustomerId(@Param("customerId") Integer customerId);
+
+    @Query("SELECT r FROM Review r WHERE r.orderDetail.id = :orderDetailId " +
+            "AND r.orderDetail.order.customer.id = :customerId")
+    Optional<Review> findByOrderDetailIdAndCustomerId(Integer orderDetailId, Integer customerId);
 }

@@ -19,4 +19,5 @@ public class OrderDetailResponse {
     private ShippingAddressResponse shippingAddress;
     private List<OrderItemResponse> orderItems;
     private List<OrderTrackResponse> orderTracks;
+    private OrderReviewResponse review;
 }

@@ -8,10 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import java.util.List;
-import java.util.Set;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { ReviewMapper.class })
 public interface OrderMapper {
     @Mapping(target = "createdAt", source = "orderTime")
     @Mapping(target = "totalPrice", source = "total")

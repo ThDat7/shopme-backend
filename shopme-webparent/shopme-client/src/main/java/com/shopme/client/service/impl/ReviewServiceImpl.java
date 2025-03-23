@@ -1,9 +1,15 @@
 package com.shopme.client.service.impl;
 
+import com.shopme.client.dto.request.OrderReviewRequest;
+import com.shopme.client.dto.response.ListResponse;
+import com.shopme.client.dto.response.OrderReviewResponse;
 import com.shopme.client.dto.response.ProductReviewResponse;
 import com.shopme.client.mapper.ReviewMapper;
+import com.shopme.client.repository.OrderDetailRepository;
 import com.shopme.client.repository.ReviewRepository;
+import com.shopme.client.service.AuthenticationService;
 import com.shopme.client.service.ReviewService;
+import com.shopme.common.entity.OrderDetail;
 import com.shopme.common.entity.Review;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,8 +29,10 @@ public class ReviewServiceImpl implements ReviewService {
     private static final String DEFAULT_SORT_DIRECTION = "desc";
     private static final int DEFAULT_PRODUCTS_PER_PAGE = 4;
 
+    private final AuthenticationService authenticationService;
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+    private final OrderDetailRepository orderDetailRepository;
 
     private Pageable getPageableFromParams(Map<String, String> params) {
         int page = Integer.parseInt(params.getOrDefault("page", "0"));
@@ -51,5 +59,45 @@ public class ReviewServiceImpl implements ReviewService {
                 .content(productReviews)
                 .totalPages(reviewPage.getTotalPages())
                 .build();
+    }
+
+    @Override
+    public OrderReviewResponse writeReview(Integer orderDetailId, OrderReviewRequest request) {
+        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        OrderDetail orderDetail = orderDetailRepository
+                .findByIdAndOrderCustomerId(orderDetailId, currentCustomerId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID: " + orderDetailId));
+
+        Review review = reviewMapper.toReview(request);
+        review.setId(null);
+        review.setOrderDetail(orderDetail);
+        review.setReviewTime(new Date());
+        reviewRepository.save(review);
+
+        return reviewMapper.toOrderReviewResponse(review);
+    }
+
+    @Override
+    public OrderReviewResponse updateReview(Integer orderDetailId, OrderReviewRequest request) {
+        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+
+        Review review = reviewRepository.findByOrderDetailIdAndCustomerId(orderDetailId, currentCustomerId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID: " + orderDetailId));
+        review.setHeadline(request.getHeadline());
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
+
+        reviewRepository.save(review);
+
+        return reviewMapper.toOrderReviewResponse(review);
+    }
+
+    @Override
+    public void deleteReview(Integer orderDetailId) {
+        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+
+        Review review = reviewRepository.findByOrderDetailIdAndCustomerId(orderDetailId, currentCustomerId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID: " + orderDetailId));
+        reviewRepository.delete(review);
     }
 }
