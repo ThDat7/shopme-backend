@@ -7,7 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "order_details")
+@Table(name = "order_details", indexes = {
+		@Index(name = "idx_order_details_order_id_product_id_quantity", columnList = "order_id, product_id, quantity"),
+		@Index(name = "idx_order_details_order_id", columnList = "order_id")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -1,10 +1,6 @@
 package com.shopme.common.entity;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import jakarta.persistence.*;
 
@@ -14,7 +10,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+		@Index(name = "idx_orders_customer_id_status_order_time", columnList = "customer_id, status, order_time DESC"),
+		@Index(name = "idx_orders_order_time_status", columnList = "order_time DESC, status")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -50,7 +49,8 @@ public class Order {
 
 	@Column(nullable = false, length = 45)
 	private String country;
-	
+
+	@Column(name = "order_time")
 	private Date orderTime;
 	
 	private float shippingCost;
@@ -78,4 +78,17 @@ public class Order {
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("updatedTime ASC")
 	private List<OrderTrack> orderTracks = new ArrayList<>();
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Order order = (Order) o;
+		return Objects.equals(id, order.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(id);
+	}
 }
