@@ -16,6 +16,11 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     Optional<Order> findByIdAndCustomerId(Integer id, Integer customerId);
 
     @Query("SELECT o FROM Order o " +
-            "WHERE (:status IS NULL OR o.status = :status)")
-    Page<Order> findAll(@Param("status") OrderStatus status, Pageable pageable);
+            "WHERE o.customer.id = :customerId " +
+            "AND (:status IS NULL OR o.status = :status) " +
+            "ORDER BY o.orderTime DESC")
+    Page<Order> findAllByCustomerIdAndStatus(@Param("customerId") Integer customerId,
+                                             @Param("status") OrderStatus status, Pageable pageable);
+
+
 }

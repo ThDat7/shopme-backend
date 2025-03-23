@@ -91,10 +91,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ListResponse<OrderListResponse> getOrders(Map<String, String> params) {
+        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
         Pageable pageable = getPageableFromParams(params);
         OrderStatus status =  params.containsKey("status") ? OrderStatus.valueOf(params.get("status")) : null;
 
-        Page<Order> orderPage = orderRepository.findAll(status, pageable);
+        Page<Order> orderPage = orderRepository.findAllByCustomerIdAndStatus(currentCustomerId, status, pageable);
         List<OrderListResponse> orderListResponses = orderPage.getContent().stream()
                 .map(orderMapper::toOrderListResponse)
                 .collect(Collectors.toList());

@@ -25,6 +25,19 @@
 			<artifactId>google-http-client-gson</artifactId>
 			<version>1.41.0</version>
 		</dependency>
-	</dependencies>
+
+
+		<dependency>
+			<groupId>vn.payos</groupId>
+			<artifactId>payos-java</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+        <dependency>
+            <groupId>com.shopme</groupId>
+            <artifactId>shopme-admin</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 </project>
