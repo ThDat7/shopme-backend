@@ -176,8 +176,16 @@ public class CheckoutServiceImpl implements CheckoutService {
             return;
         Order order = opOrder.get();
         boolean isMatchAmount = Math.round(order.getTotal()) == amount;
-        if (isMatchAmount)
+        if (isMatchAmount) {
             order.setStatus(OrderStatus.PAID);
+            order.getOrderTracks().add(OrderTrack.builder()
+                    .order(order)
+                    .status(OrderStatus.PAID)
+                    .updatedTime(new Date())
+                    .notes(OrderStatus.PAID.getDescription())
+                    .build());
+        }
+
 
         orderRepository.save(order);
     }

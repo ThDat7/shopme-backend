@@ -28,11 +28,6 @@ public class CheckoutController {
         return ApiResponse.ok(shippingService.calculateShipping(request));
     }
 
-    @GetMapping("/payment/methods")
-    public ApiResponse<List<PaymentMethodResponse>> getPaymentMethods() {
-        return ApiResponse.ok(checkoutService.getPaymentMethods());
-    }
-
     @PostMapping("/payment/COD")
     public ApiResponse<Void> placeOrderCOD(@RequestBody PlaceOrderCODRequest request) {
         checkoutService.placeOrderCOD(request);
