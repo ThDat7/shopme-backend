@@ -38,6 +38,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/v1/brands/**").hasAnyAuthority("Admin", "Editor")
                         .requestMatchers("/api/v1/products/**").hasAnyAuthority("Admin", "Editor")
                         .requestMatchers("/api/v1/shipping-rates/**").hasAnyAuthority("Admin")
+                        .requestMatchers("/api/v1/orders/**").hasAnyAuthority("Admin", "Salesperson")
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated()
 
