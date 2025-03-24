@@ -195,5 +195,21 @@ public class CheckoutServiceImpl implements CheckoutService {
         return paymentService.handlePayOSWebhook(webhookBody, this::onPaymentSuccess);
     }
 
+    @Override
+    public void bypassPayment(Integer orderId) {
+        Optional<Order> opOrder = orderRepository.findById(orderId);
+        if (opOrder.isEmpty())
+            return;
+        paymentService.cancelPayOSPayment(orderId);
+        Order order = opOrder.get();
 
+        order.setStatus(OrderStatus.PAID);
+        order.getOrderTracks().add(OrderTrack.builder()
+                .order(order)
+                .status(OrderStatus.PAID)
+                .updatedTime(new Date())
+                .notes(OrderStatus.PAID.getDescription())
+                .build());
+        orderRepository.save(order);
+    }
 }

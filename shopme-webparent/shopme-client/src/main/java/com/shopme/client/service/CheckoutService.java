@@ -13,4 +13,6 @@ public interface CheckoutService {
     void placeOrderCOD(PlaceOrderCODRequest request);
 
     PayOSACKResponse payosTransferHandler(Webhook webhookBody);
+
+    void bypassPayment(Integer orderId);
 }
