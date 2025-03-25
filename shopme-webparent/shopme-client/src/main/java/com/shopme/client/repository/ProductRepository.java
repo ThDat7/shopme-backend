@@ -20,6 +20,15 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Query("SELECT p.id, p.name, p.price, p.discountPercent, p.mainImage, " +
             "COALESCE(AVG(r.rating), 0) AS averageRating, " +
             "COUNT(DISTINCT r.id) AS reviewCount, " +
+            "COUNT(DISTINCT od.id) AS saleCount FROM Product p " +
+            "LEFT JOIN OrderDetail od ON od.product.id = p.id " +
+            "LEFT JOIN Review r ON r.orderDetail.id = od.id " +
+            "WHERE p.name LIKE :keyword OR p.shortDescription LIKE :keyword GROUP BY p.id")
+    Page<Object[]> search(String keyword, Pageable pageable);
+
+    @Query("SELECT p.id, p.name, p.price, p.discountPercent, p.mainImage, " +
+            "COALESCE(AVG(r.rating), 0) AS averageRating, " +
+            "COUNT(DISTINCT r.id) AS reviewCount, " +
             "COUNT(DISTINCT od.id) AS saleCount " +
             "FROM Product p " +
             "LEFT JOIN OrderDetail od ON od.product.id = p.id " +
@@ -40,4 +49,27 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "GROUP BY p.id " +
             "ORDER BY COUNT(od.id) DESC")
     Page<Object[]> getTrending(Pageable pageable, @Param("start") Date start, @Param("end") Date end);
+
+    @Query("SELECT p.id, p.name, p.price, p.discountPercent, p.mainImage, " +
+            "COALESCE(AVG(r.rating), 0) AS averageRating, " +
+            "COUNT(DISTINCT r.id) AS reviewCount, " +
+            "COUNT(DISTINCT od.id) AS saleCount " +
+            "FROM Product p " +
+            "LEFT JOIN OrderDetail od ON od.product.id = p.id " +
+            "LEFT JOIN Review r ON r.orderDetail.id = od.id " +
+            "GROUP BY p.id " +
+            "ORDER BY COALESCE(AVG(r.rating), 0) DESC")
+    Page<Object[]> getTopRated(Pageable pageable);
+
+    @Query("SELECT p.id, p.name, p.price, p.discountPercent, p.mainImage, " +
+            "COALESCE(AVG(r.rating), 0) AS averageRating, " +
+            "COUNT(DISTINCT r.id) AS reviewCount, " +
+            "COUNT(DISTINCT od.id) AS saleCount " +
+            "FROM Product p " +
+            "LEFT JOIN OrderDetail od ON od.product.id = p.id " +
+            "LEFT JOIN Review r ON r.orderDetail.id = od.id " +
+            "WHERE p.discountPercent > 0 " +
+            "GROUP BY p.id " +
+            "ORDER BY p.discountPercent DESC")
+    Page<Object[]> getTopDiscounted(Pageable pageable);
 }

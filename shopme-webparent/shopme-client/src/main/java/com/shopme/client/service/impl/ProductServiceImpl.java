@@ -141,4 +141,18 @@ public class ProductServiceImpl implements ProductService {
         return getListProductResponse(productPage);
     }
 
+    @Override
+    public ListResponse<ProductListResponse> getTopRatedProducts(Map<String, String> params) {
+        Pageable pageable = PageRequest.of(0, 4);
+        Page<Object[]> productPage = productRepository.getTopRated(pageable);
+        return getListProductResponse(productPage);
+    }
+
+    @Override
+    public ListResponse<ProductListResponse> getTopDiscountedProducts(Map<String, String> params) {
+        Pageable pageable = PageRequest.of(0, 4);
+        Page<Object[]> productPage = productRepository.getTopDiscounted(pageable);
+        return getListProductResponse(productPage);
+    }
+
 }

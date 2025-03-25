@@ -14,4 +14,8 @@ public interface ProductService {
     ListResponse<ProductListResponse> getBestSellerProducts();
 
     ListResponse<ProductListResponse> getTrendingProducts(Map<String, String> params);
+
+    ListResponse<ProductListResponse> getTopRatedProducts(Map<String, String> params);
+
+    ListResponse<ProductListResponse> getTopDiscountedProducts(Map<String, String> params);
 }

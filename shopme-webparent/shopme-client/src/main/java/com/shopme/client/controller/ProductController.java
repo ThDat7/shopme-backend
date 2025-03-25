@@ -39,4 +39,16 @@ public class ProductController {
         ListResponse<ProductListResponse> products = productService.getTrendingProducts(params);
         return ApiResponse.ok(products);
     }
+
+    @GetMapping("/top-rated")
+    public ApiResponse<ListResponse<ProductListResponse>> getTopRatedProducts(@RequestParam Map<String, String> params) {
+        ListResponse<ProductListResponse> products = productService.getTopRatedProducts(params);
+        return ApiResponse.ok(products);
+    }
+
+    @GetMapping("/top-discounted")
+    public ApiResponse<ListResponse<ProductListResponse>> getTopDiscountedProducts(@RequestParam Map<String, String> params) {
+        ListResponse<ProductListResponse> products = productService.getTopDiscountedProducts(params);
+        return ApiResponse.ok(products);
+    }
 }
