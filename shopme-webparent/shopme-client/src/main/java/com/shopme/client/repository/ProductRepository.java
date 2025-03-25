@@ -8,10 +8,36 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Query("SELECT p FROM Product p " +
             "WHERE (:keyword IS NULL OR p.name LIKE %:keyword%)" +
             "AND (:categoryId IS NULL OR p.category.id = :categoryId)")
     Page<Product> findAll(@Param("keyword") String keyword, @Param("categoryId") Integer categoryId, Pageable pageable);
+
+    @Query("SELECT p.id, p.name, p.price, p.discountPercent, p.mainImage, " +
+            "COALESCE(AVG(r.rating), 0) AS averageRating, " +
+            "COUNT(DISTINCT r.id) AS reviewCount, " +
+            "COUNT(DISTINCT od.id) AS saleCount " +
+            "FROM Product p " +
+            "LEFT JOIN OrderDetail od ON od.product.id = p.id " +
+            "LEFT JOIN Review r ON r.orderDetail.id = od.id " +
+            "GROUP BY p.id " +
+            "ORDER BY COUNT(od.id) DESC")
+    Page<Object[]> getBestSelling(Pageable pageable);
+
+    @Query("SELECT p.id, p.name, p.price, p.discountPercent, p.mainImage, " +
+            "COALESCE(AVG(r.rating), 0) AS averageRating, " +
+            "COUNT(DISTINCT r.id) AS reviewCount, " +
+            "COUNT(DISTINCT od.id) AS saleCount " +
+            "FROM Product p " +
+            "LEFT JOIN OrderDetail od ON od.product.id = p.id " +
+            "LEFT JOIN Review r ON r.orderDetail.id = od.id " +
+            "JOIN Order o ON od.order.id = o.id " +
+            "WHERE o.orderTime BETWEEN :start AND :end " +
+            "GROUP BY p.id " +
+            "ORDER BY COUNT(od.id) DESC")
+    Page<Object[]> getTrending(Pageable pageable, @Param("start") Date start, @Param("end") Date end);
 }

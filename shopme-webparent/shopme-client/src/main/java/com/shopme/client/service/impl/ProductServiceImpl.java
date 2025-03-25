@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,8 +46,8 @@ public class ProductServiceImpl implements ProductService {
         return PageRequest.of(page, size, sort);
     }
 
-    private String getProductMainImageURL(Product product) {
-        return fileUploadService.getProductMainImageUrl(product.getId(), product.getMainImage());
+    private String getProductMainImageURL(Integer productId, String mainImage) {
+        return fileUploadService.getProductMainImageUrl(productId, mainImage);
     }
 
     private Set<String> getProductImageResponses(Product product) {
@@ -65,7 +66,7 @@ public class ProductServiceImpl implements ProductService {
         List<ProductListResponse> productListResponses = productPage.getContent().stream()
                 .map(product -> {
                     var productDto = productMapper.toProductListResponse(product);
-                    productDto.setMainImage(getProductMainImageURL(product));
+                    productDto.setMainImage(getProductMainImageURL(product.getId(), product.getMainImage()));
                     return productDto;
                 })
                 .collect(Collectors.toList());
@@ -84,10 +85,60 @@ public class ProductServiceImpl implements ProductService {
                 .findParentCategories(product.getCategory().getId());
 
         var productDto = productMapper.toProductDetailResponse(product);
-        productDto.setMainImage(getProductMainImageURL(product));
+        productDto.setMainImage(getProductMainImageURL(product.getId(), product.getMainImage()));
         productDto.setImages(getProductImageResponses(product));
         productDto.setBreadcrumbs(categoryBreadcrumbs);
         return productDto;
+    }
+
+    private List<ProductListResponse> toProductListResponses(List<Object[]> productObjects) {
+        return productObjects.stream()
+                .map(product -> {
+                    ProductListResponse productDto = ProductListResponse.builder()
+                            .id((Integer) product[0])
+                            .name((String) product[1])
+                            .price((Float) product[2])
+                            .discountPercent(((Float) product[3]))
+                            .mainImage((String) product[4])
+                            .averageRating(((Double) product[5]).floatValue())
+                            .reviewCount(((Long) product[6]).intValue())
+                            .saleCount(((Long) product[7]).intValue())
+                            .build();
+
+                    productDto.setMainImage(getProductMainImageURL(productDto.getId(), productDto.getMainImage()));
+                    float discountPrice = productDto.getPrice() * (1 - productDto.getDiscountPercent() / 100);
+                    productDto.setDiscountPrice(discountPrice);
+
+                    return productDto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private ListResponse<ProductListResponse> getListProductResponse(Page<Object[]> productPage) {
+        List<ProductListResponse> productListResponses = toProductListResponses(productPage.getContent());
+        return ListResponse.<ProductListResponse>builder()
+                .content(productListResponses)
+                .totalPages(productPage.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public ListResponse<ProductListResponse> getBestSellerProducts() {
+        Pageable pageable = PageRequest.of(0, 4);
+        Page<Object[]> productPage = productRepository.getBestSelling(pageable);
+        return getListProductResponse(productPage);
+    }
+
+    @Override
+    public ListResponse<ProductListResponse> getTrendingProducts(Map<String, String> params) {
+        Pageable pageable = PageRequest.of(0, 4);
+
+//        trending last 7 days
+        Date start = new Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000);
+
+        Date end = new Date();
+        Page<Object[]> productPage = productRepository.getTrending(pageable, start, end);
+        return getListProductResponse(productPage);
     }
 
 }

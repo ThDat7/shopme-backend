@@ -27,4 +27,16 @@ public class ProductController {
         ProductDetailResponse product = productService.getProductDetail(id);
         return ApiResponse.ok(product);
     }
+
+    @GetMapping("/best-seller")
+    public ApiResponse<ListResponse<ProductListResponse>> getBestSellerProducts() {
+        ListResponse<ProductListResponse> products = productService.getBestSellerProducts();
+        return ApiResponse.ok(products);
+    }
+
+    @GetMapping("/trending")
+    public ApiResponse<ListResponse<ProductListResponse>> getTrendingProducts(@RequestParam Map<String, String> params) {
+        ListResponse<ProductListResponse> products = productService.getTrendingProducts(params);
+        return ApiResponse.ok(products);
+    }
 }

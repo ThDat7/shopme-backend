@@ -10,4 +10,8 @@ public interface ProductService {
     ListResponse<ProductListResponse> listByPage(Map<String, String> params);
 
     ProductDetailResponse getProductDetail(Integer id);
+
+    ListResponse<ProductListResponse> getBestSellerProducts();
+
+    ListResponse<ProductListResponse> getTrendingProducts(Map<String, String> params);
 }
