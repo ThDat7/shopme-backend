@@ -1,6 +1,5 @@
 package com.shopme.common.entity;
 
-import com.shopme.common.entity.SettingValue.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -23,7 +22,16 @@ public enum SettingKey {
     // Payment Settings
     PAYOS_CLIENT_ID(SettingCategory.PAYMENT),
     PAYOS_API_KEY(SettingCategory.PAYMENT),
-    PAYOS_CHECKSUM_KEY(SettingCategory.PAYMENT);
+    PAYOS_CHECKSUM_KEY(SettingCategory.PAYMENT),
+
+//    Mail Server Settings
+    MAIL_SERVER_HOST(SettingCategory.MAIL_SERVER),
+    MAIL_SERVER_PORT(SettingCategory.MAIL_SERVER),
+    MAIL_SERVER_USERNAME(SettingCategory.MAIL_SERVER),
+    MAIL_SERVER_PASSWORD(SettingCategory.MAIL_SERVER),
+    MAIL_SERVER_SMTP_AUTH(SettingCategory.MAIL_SERVER),
+    MAIL_SERVER_SMTP_SECURED(SettingCategory.MAIL_SERVER),
+    MAIL_SERVER_FROM(SettingCategory.MAIL_SERVER);
 
     private final SettingCategory category;
 }
