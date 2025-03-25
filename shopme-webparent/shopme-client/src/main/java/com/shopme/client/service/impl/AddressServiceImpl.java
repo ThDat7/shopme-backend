@@ -123,4 +123,22 @@ public class AddressServiceImpl implements AddressService {
                 .map(addressMapper::toAddressResponse)
                 .toList();
     }
+
+    @Override
+    public void createDefaultAddress(Customer customer) {
+        Address address = Address.builder()
+                .firstName(customer.getFirstName())
+                .lastName(customer.getLastName())
+                .phoneNumber(customer.getPhoneNumber())
+                .addressLine1(customer.getAddressLine1())
+                .addressLine2(customer.getAddressLine2())
+                .city(customer.getCity())
+                .state(customer.getState())
+                .postalCode(customer.getPostalCode())
+                .country(customer.getCountry())
+                .customer(customer)
+                .defaultForShipping(true)
+                .build();
+        addressRepository.save(address);
+    }
 }
