@@ -26,7 +26,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
+    private final CustomerContextService customerContextService;
     private final JwtTokenService jwtTokenService;
+    private final EmailService emailService;
     private final AddressService addressService;
     private final PasswordEncoder passwordEncoder;
     private final CustomerRepository customerRepository;
@@ -80,14 +82,46 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new RuntimeException("Country not found"));
         customer.setCountry(country);
 
+        String randomUUID = UUID.randomUUID().toString();
+        customer.setVerificationCode(randomUUID);
         customerRepository.save(customer);
         addressService.createDefaultAddress(customer);
 
+        emailService.sendVerificationEmail(customer.getEmail(), randomUUID);
         String token = jwtTokenService.generateToken(customer);
         return authenticationMapper.toAuthenticationResponse(token, customer);
     }
 
-//    MOCK DATA NAME
+    @Override
+    public CustomerVerifyEmailResponse verify(CustomerVerifyEmailRequest request) {
+        Customer currentCustomer = customerRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        boolean isMatch = currentCustomer.getVerificationCode().equals(request.getVerificationCode());
+        if (!isMatch)
+            throw new RuntimeException("Verification code is not valid");
+
+        currentCustomer.setStatus(CustomerStatus.VERIFIED);
+        currentCustomer.setVerificationCode(null);
+        customerRepository.save(currentCustomer);
+
+        return new CustomerVerifyEmailResponse(true);
+    }
+
+    @Override
+    public void resendVerification(CustomerResendVerifyEmailRequest request) {
+        Customer currentCustomer = customerRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        if (currentCustomer.getStatus() == CustomerStatus.VERIFIED)
+            throw new RuntimeException("Customer already verified");
+
+        currentCustomer.setVerificationCode(UUID.randomUUID().toString());
+        emailService.sendVerificationEmail(currentCustomer.getEmail(), currentCustomer.getVerificationCode());
+        customerRepository.save(currentCustomer);
+    }
+
+    //    MOCK DATA NAME
     private void setCustomerName(Customer customer, String name) {
         String[] nameArray = name.split(" ");
         if (nameArray.length > 0) customer.setFirstName(nameArray[0]);

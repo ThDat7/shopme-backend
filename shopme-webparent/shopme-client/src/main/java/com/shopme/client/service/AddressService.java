@@ -3,6 +3,7 @@ package com.shopme.client.service;
 import com.shopme.client.dto.request.AddressRequest;
 import com.shopme.client.dto.response.AddressDetailResponse;
 import com.shopme.client.dto.response.AddressResponse;
+import com.shopme.common.entity.Customer;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface AddressService {
     AddressDetailResponse getAddressDetail(Integer id);
 
     List<AddressResponse> getAll();
+
+    void createDefaultAddress(Customer customer);
 }

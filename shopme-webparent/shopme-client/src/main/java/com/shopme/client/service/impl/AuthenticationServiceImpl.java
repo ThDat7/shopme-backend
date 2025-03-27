@@ -67,22 +67,4 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new RuntimeException(e);
         }
     }
-
-    @Override
-    public Customer getCurrentCustomer() {
-        Integer customerId = getCurrentCustomerId();
-        return customerRepository.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found"));
-    }
-
-    @Override
-    public Integer getCurrentCustomerId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        try {
-            Jwt jwt = (Jwt) authentication.getPrincipal();
-            Long customerId = jwt.getClaim("customerId");
-            return customerId.intValue();
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Unauthorized");
-        }
-    }
 }
