@@ -1,9 +1,11 @@
 package com.shopme.client.service;
 
+import com.shopme.client.dto.request.CustomerUpdateProfileRequest;
 import com.shopme.client.dto.request.CustomerRegistrationRequest;
 import com.shopme.client.dto.request.CustomerResendVerifyEmailRequest;
 import com.shopme.client.dto.request.CustomerVerifyEmailRequest;
 import com.shopme.client.dto.response.AuthenticationResponse;
+import com.shopme.client.dto.response.CustomerInfoResponse;
 import com.shopme.client.dto.response.CustomerVerifyEmailResponse;
 import com.shopme.common.entity.Customer;
 
@@ -15,4 +17,8 @@ public interface CustomerService {
     CustomerVerifyEmailResponse verify(CustomerVerifyEmailRequest request);
 
     void resendVerification(CustomerResendVerifyEmailRequest request);
+
+    CustomerInfoResponse getProfile();
+
+    CustomerInfoResponse updateProfile(CustomerUpdateProfileRequest request);
 }

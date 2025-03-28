@@ -7,6 +7,7 @@ import com.shopme.client.dto.request.CustomerVerifyEmailRequest;
 import com.shopme.client.dto.response.AuthenticationResponse;
 import com.shopme.client.dto.response.CustomerInfoResponse;
 import com.shopme.client.dto.response.CustomerVerifyEmailResponse;
+import com.shopme.client.exception.type.*;
 import com.shopme.client.mapper.AuthenticationMapper;
 import com.shopme.client.mapper.CustomerMapper;
 import com.shopme.client.repository.CountryRepository;
@@ -119,6 +120,54 @@ public class CustomerServiceImpl implements CustomerService {
         currentCustomer.setVerificationCode(UUID.randomUUID().toString());
         emailService.sendVerificationEmail(currentCustomer.getEmail(), currentCustomer.getVerificationCode());
         customerRepository.save(currentCustomer);
+    }
+
+    @Override
+    public CustomerInfoResponse getProfile() {
+        Customer customer = customerContextService.getCurrentCustomer();
+        return customerMapper.toCustomerInfoResponse(customer);
+    }
+
+    private void updateEmailAndPassword(Customer customer, String email, String password) {
+        if (customer.getAuthenticationType() != AuthenticationType.DATABASE)
+            return;
+
+        if (password != null && !password.isEmpty())
+            customer.setPassword(passwordEncoder.encode(password));
+
+        if (email != null && !email.isEmpty()) {
+            customer.setEmail(email);
+            customer.setStatus(CustomerStatus.UNVERIFIED);
+            customer.setVerificationCode(UUID.randomUUID().toString());
+
+        }
+    }
+
+    @Override
+    public CustomerInfoResponse updateProfile(CustomerUpdateProfileRequest request) {
+        Customer customer = customerContextService.getCurrentCustomer();
+
+        customer.setFirstName(request.getFirstName());
+        customer.setLastName(request.getLastName());
+        customer.setPhoneNumber(request.getPhoneNumber());
+        customer.setAddressLine1(request.getAddressLine1());
+        customer.setCity(request.getCity());
+        customer.setState(request.getState());
+
+        Country country = countryRepository.findById(request.getCountryId())
+                .orElseThrow(() -> new RuntimeException("Country not found"));
+        customer.setCountry(country);
+
+        if (customer.getStatus() == CustomerStatus.NEED_INFO) {
+            customer.setStatus(CustomerStatus.VERIFIED);
+            addressService.createDefaultAddress(customer);
+        }
+
+        updateEmailAndPassword(customer, request.getEmail(), request.getPassword());
+
+        customerRepository.save(customer);
+        return customerMapper.toCustomerInfoResponse(customer);
+
     }
 
     //    MOCK DATA NAME

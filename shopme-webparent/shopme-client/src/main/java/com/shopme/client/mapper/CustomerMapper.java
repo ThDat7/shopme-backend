@@ -1,6 +1,8 @@
 package com.shopme.client.mapper;
 
+import com.shopme.client.dto.request.CustomerUpdateProfileRequest;
 import com.shopme.client.dto.request.CustomerRegistrationRequest;
+import com.shopme.client.dto.response.CustomerInfoResponse;
 import com.shopme.common.entity.Customer;
 import org.mapstruct.*;
 
@@ -10,4 +12,7 @@ public interface CustomerMapper {
         NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "password", ignore = true)
     Customer toCustomer(CustomerRegistrationRequest request);
+
+    @Mapping(target = "countryId", source = "country.id")
+    CustomerInfoResponse toCustomerInfoResponse(Customer customer);
 }
