@@ -7,12 +7,10 @@ import com.shopme.common.entity.Customer;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { CustomerMapper.class })
 public interface AuthenticationMapper {
     AuthenticationResponse toAuthenticationResponse(String token, Customer customer);
 
     @Mapping(target = "valid", source = "valid")
     IntrospectResponse toIntrospectResponse(Boolean valid);
-
-    CustomerInfoResponse toCustomerInfoResponse(Customer customer);
 }

@@ -4,6 +4,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.nimbusds.jose.*;
 import com.nimbusds.jwt.SignedJWT;
+import com.shopme.client.dto.request.CustomerLoginRequest;
 import com.shopme.client.dto.request.GoogleAuthenticationRequest;
 import com.shopme.client.dto.request.IntrospectRequest;
 import com.shopme.client.dto.response.AuthenticationResponse;
@@ -14,6 +15,7 @@ import com.shopme.client.service.AuthenticationService;
 import com.shopme.client.service.CustomerService;
 import com.shopme.common.entity.Customer;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -24,6 +26,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
+    private final PasswordEncoder passwordEncoder;
     private final CustomerService customerService;
     private final JwtTokenServiceImpl jwtTokenService;
     private final CustomerRepository customerRepository;
@@ -66,5 +69,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public AuthenticationResponse login(CustomerLoginRequest request) {
+        Customer customer = customerRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        boolean authenticated = passwordEncoder.matches(request.getPassword(), customer.getPassword());
+        if (!authenticated)
+            throw new RuntimeException("Invalid authenticate information");
+
+        String token = jwtTokenService.generateToken(customer);
+        return AuthenticationResponse.builder()
+                .token(token)
+                .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.shopme.client.controller;
 
+import com.shopme.client.dto.request.CustomerLoginRequest;
 import com.shopme.client.dto.request.GoogleAuthenticationRequest;
 import com.shopme.client.dto.request.IntrospectRequest;
 import com.shopme.client.dto.response.AuthenticationResponse;
@@ -17,6 +18,11 @@ public class AuthenticationController {
     @PostMapping("/google")
     public ApiResponse<AuthenticationResponse> googleAuthentication(@RequestBody GoogleAuthenticationRequest request) {
         return ApiResponse.ok(authenticationService.googleAuthentication(request));
+    }
+
+    @PostMapping("/login")
+    public ApiResponse<AuthenticationResponse> login(@RequestBody CustomerLoginRequest request) {
+        return ApiResponse.ok(authenticationService.login(request));
     }
 
     @PostMapping("/introspect")
