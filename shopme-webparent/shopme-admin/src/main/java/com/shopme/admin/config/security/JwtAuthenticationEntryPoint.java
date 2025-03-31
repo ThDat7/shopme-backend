@@ -1,7 +1,7 @@
 package com.shopme.admin.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shopme.admin.dto.response.ApiResponse;
+import com.shopme.common.dto.response.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

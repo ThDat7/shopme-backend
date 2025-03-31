@@ -5,6 +5,7 @@ import com.shopme.admin.dto.request.UserCreateRequest;
 import com.shopme.admin.dto.request.UserUpdateRequest;
 import com.shopme.admin.dto.response.*;
 import com.shopme.admin.service.UserService;
+import com.shopme.common.dto.response.ApiResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 

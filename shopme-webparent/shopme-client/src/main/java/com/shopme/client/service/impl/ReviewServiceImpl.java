@@ -8,6 +8,7 @@ import com.shopme.client.mapper.ReviewMapper;
 import com.shopme.client.repository.OrderDetailRepository;
 import com.shopme.client.repository.ReviewRepository;
 import com.shopme.client.service.AuthenticationService;
+import com.shopme.client.service.CustomerContextService;
 import com.shopme.client.service.ReviewService;
 import com.shopme.common.entity.OrderDetail;
 import com.shopme.common.entity.Review;
@@ -29,7 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
     private static final String DEFAULT_SORT_DIRECTION = "desc";
     private static final int DEFAULT_PRODUCTS_PER_PAGE = 4;
 
-    private final AuthenticationService authenticationService;
+    private final CustomerContextService customerContextService;
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
     private final OrderDetailRepository orderDetailRepository;
@@ -63,7 +64,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public OrderReviewResponse writeReview(Integer orderDetailId, OrderReviewRequest request) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         OrderDetail orderDetail = orderDetailRepository
                 .findByIdAndOrderCustomerId(orderDetailId, currentCustomerId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID: " + orderDetailId));
@@ -79,7 +80,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public OrderReviewResponse updateReview(Integer orderDetailId, OrderReviewRequest request) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
 
         Review review = reviewRepository.findByOrderDetailIdAndCustomerId(orderDetailId, currentCustomerId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID: " + orderDetailId));
@@ -94,7 +95,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteReview(Integer orderDetailId) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
 
         Review review = reviewRepository.findByOrderDetailIdAndCustomerId(orderDetailId, currentCustomerId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID: " + orderDetailId));

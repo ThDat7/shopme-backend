@@ -5,10 +5,7 @@ import com.shopme.client.dto.response.OrderDetailResponse;
 import com.shopme.client.dto.response.OrderListResponse;
 import com.shopme.client.mapper.OrderMapper;
 import com.shopme.client.repository.OrderRepository;
-import com.shopme.client.service.AuthenticationService;
-import com.shopme.client.service.FileUploadService;
-import com.shopme.client.service.OrderService;
-import com.shopme.client.service.PaymentService;
+import com.shopme.client.service.*;
 import com.shopme.common.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,7 +28,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentService paymentService;
     private final FileUploadService fileUploadService;
     private final OrderRepository orderRepository;
-    private final AuthenticationService authenticationService;
+    private final CustomerContextService customerContextService;
     private final OrderMapper orderMapper;
 
     private void updateOrderStatusStatic(Order order, OrderStatus newStatus) {
@@ -59,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void cancelOrder(Integer orderId) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Order order = orderRepository.findByIdAndCustomerId(orderId, currentCustomerId).orElseThrow(
                 () -> new IllegalArgumentException("Order not found with Id: " + orderId)
         );
@@ -82,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderStatus getOrderStatus(Integer orderId) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Order order = orderRepository.findByIdAndCustomerId(orderId, currentCustomerId).orElseThrow(
                 () -> new IllegalArgumentException("Order not found with Id: " + orderId)
         );
@@ -91,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ListResponse<OrderListResponse> getOrders(Map<String, String> params) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Pageable pageable = getPageableFromParams(params);
         OrderStatus status =  params.containsKey("status") ? OrderStatus.valueOf(params.get("status")) : null;
 
@@ -108,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDetailResponse getOrder(Integer orderId) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Order order = orderRepository.findByIdAndCustomerId(orderId, currentCustomerId).orElseThrow(
                 () -> new IllegalArgumentException("Order not found with Id: " + orderId)
         );

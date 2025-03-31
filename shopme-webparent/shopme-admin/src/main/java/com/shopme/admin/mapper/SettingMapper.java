@@ -3,6 +3,7 @@ package com.shopme.admin.mapper;
 import com.shopme.admin.dto.request.CurrencySettingsRequest;
 import com.shopme.admin.dto.request.GeneralSettingsRequest;
 import com.shopme.admin.dto.request.OtherSettingRequest;
+import com.shopme.admin.dto.request.PaymentSettingsRequest;
 import com.shopme.admin.dto.response.CurrencySelectResponse;
 import com.shopme.admin.dto.response.SettingResponse;
 import com.shopme.common.entity.Currency;
@@ -74,6 +75,28 @@ public interface SettingMapper {
                 .category(SettingCategory.CURRENCY)
                 .build());
 
+        return settings;
+    }
+
+    default List<Setting> toSettings(PaymentSettingsRequest paymentSettingsRequest) {
+        List<Setting> settings = new ArrayList<>();
+        settings.add(Setting.builder()
+                .key(SettingKey.PAYOS_CLIENT_ID)
+                .value(paymentSettingsRequest.getPayosClientId())
+                .category(SettingCategory.PAYMENT)
+                .build());
+
+        settings.add(Setting.builder()
+                .key(SettingKey.PAYOS_API_KEY)
+                .value(paymentSettingsRequest.getPayosApiKey())
+                .category(SettingCategory.PAYMENT)
+                .build());
+
+        settings.add(Setting.builder()
+                .key(SettingKey.PAYOS_CHECKSUM_KEY)
+                .value(paymentSettingsRequest.getPayosChecksumKey())
+                .category(SettingCategory.PAYMENT)
+                .build());
         return settings;
     }
 

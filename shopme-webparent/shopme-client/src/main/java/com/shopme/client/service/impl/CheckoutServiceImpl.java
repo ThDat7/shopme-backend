@@ -5,15 +5,11 @@ import com.shopme.client.dto.request.PlaceOrderCODRequest;
 import com.shopme.client.dto.request.PlaceOrderPayOSRequest;
 import com.shopme.client.dto.response.PayOSACKResponse;
 import com.shopme.client.dto.response.PlaceOrderPayOSResponse;
-import com.shopme.client.dto.response.PaymentMethodResponse;
 import com.shopme.client.mapper.CheckoutMapper;
 import com.shopme.client.repository.AddressRepository;
 import com.shopme.client.repository.CartItemRepository;
 import com.shopme.client.repository.OrderRepository;
-import com.shopme.client.service.AuthenticationService;
-import com.shopme.client.service.CheckoutService;
-import com.shopme.client.service.PaymentService;
-import com.shopme.client.service.ShippingService;
+import com.shopme.client.service.*;
 import com.shopme.common.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,17 +29,17 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final OrderRepository orderRepository;
     private final AddressRepository addressRepository;
     private final CartItemRepository cartItemRepository;
-    private final AuthenticationService authenticationService;
+    private final CustomerContextService customerContextService;
 
     private final CheckoutMapper checkoutMapper;
 
     private List<CartItem> getCartItems(List<Integer> cartItemIds) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         return cartItemRepository.findAllByCustomerIdAndProductIdIn(currentCustomerId, cartItemIds);
     }
 
     private Address getAddress(Integer addressId) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         return addressRepository.findByIdAndCustomerId(addressId, currentCustomerId)
                 .orElseThrow(() -> new IllegalArgumentException("Address not found"));
     }
@@ -117,7 +113,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         List<CartItem> cartItems = getCartItems(request.getCartItemIds());
         Address address = getAddress(request.getAddressId());
         Set<OrderDetail> orderDetails = generateOrderDetails(cartItems, address);
-        Customer currentCustomer = authenticationService.getCurrentCustomer();
+        Customer currentCustomer = customerContextService.getCurrentCustomer();
 
         Order order = Order.builder()
                 .orderTime(new Date())

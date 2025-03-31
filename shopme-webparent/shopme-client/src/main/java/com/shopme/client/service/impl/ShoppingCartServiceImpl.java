@@ -6,6 +6,7 @@ import com.shopme.client.mapper.CartItemMapper;
 import com.shopme.client.repository.CartItemRepository;
 import com.shopme.client.repository.ProductRepository;
 import com.shopme.client.service.AuthenticationService;
+import com.shopme.client.service.CustomerContextService;
 import com.shopme.client.service.FileUploadService;
 import com.shopme.client.service.ShoppingCartService;
 import com.shopme.common.entity.CartItem;
@@ -21,7 +22,7 @@ import java.util.List;
 public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
-    private final AuthenticationService authenticationService;
+    private final CustomerContextService customerContextService;
     private final CartItemMapper cartItemMapper;
     private final FileUploadService fileUploadService;
 
@@ -30,7 +31,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     public List<CartItemResponse> getAll() {
-        Customer customer = authenticationService.getCurrentCustomer();
+        Customer customer = customerContextService.getCurrentCustomer();
         List<CartItem> cartItems = cartItemRepository.findAllByCustomer(customer);
         return cartItems.stream().map(c -> {
             CartItemResponse cartItemResponse = cartItemMapper.toCartItemResponse(c);
@@ -40,7 +41,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     public CartItemResponse addProductToCart(CartItemRequest request) {
-        Customer Customer = authenticationService.getCurrentCustomer();
+        Customer Customer = customerContextService.getCurrentCustomer();
         CartItem cartItem = cartItemRepository.findByCustomerAndProduct_Id(Customer, request.getProductId());
         if (cartItem == null) {
             Product product = productRepository.findById(request.getProductId())
@@ -60,7 +61,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     public CartItemResponse updateQuantity(CartItemRequest request) {
-        Customer Customer = authenticationService.getCurrentCustomer();
+        Customer Customer = customerContextService.getCurrentCustomer();
         CartItem cartItem = cartItemRepository.findByCustomerAndProduct_Id(Customer, request.getProductId());
         cartItem.setQuantity(request.getQuantity());
         cartItemRepository.save(cartItem);

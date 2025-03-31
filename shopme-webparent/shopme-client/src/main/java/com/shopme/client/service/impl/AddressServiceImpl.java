@@ -8,6 +8,7 @@ import com.shopme.client.repository.AddressRepository;
 import com.shopme.client.repository.CountryRepository;
 import com.shopme.client.service.AddressService;
 import com.shopme.client.service.AuthenticationService;
+import com.shopme.client.service.CustomerContextService;
 import com.shopme.common.entity.Address;
 import com.shopme.common.entity.Country;
 import com.shopme.common.entity.Customer;
@@ -23,11 +24,11 @@ public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
     private final CountryRepository countryRepository;
     private final AddressMapper addressMapper;
-    private final AuthenticationService authenticationService;
+    private final CustomerContextService customerContextService;
 
     @Override
     public void deleteAddress(Integer id) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Address address = addressRepository.findByIdAndCustomerId(id, currentCustomerId).orElseThrow(
                 () -> new RuntimeException("Address not found with id: " + id)
         );
@@ -36,7 +37,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressDetailResponse getDefaultAddress() {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Address address = addressRepository.findByDefaultForShippingTrueAndCustomerId(currentCustomerId);
         return addressMapper.toAddressDetailResponse(address);
     }
@@ -44,7 +45,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     @Transactional
     public void setDefaultAddress(Integer id) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Address address = addressRepository.findByIdAndCustomerId(id, currentCustomerId).orElseThrow(
                 () -> new RuntimeException("Address not found with id: " + id)
         );
@@ -56,7 +57,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     @Transactional
     public AddressDetailResponse updateAddress(Integer id, AddressRequest addressRequest) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Address address = addressRepository.findByIdAndCustomerId(id, currentCustomerId).orElseThrow(
                 () -> new RuntimeException("Address not found with id: " + id)
         );
@@ -89,7 +90,7 @@ public class AddressServiceImpl implements AddressService {
     public AddressDetailResponse createAddress(AddressRequest addressRequest) {
         Address address = addressMapper.toAddress(addressRequest);
 
-        Customer currentCustomer = authenticationService.getCurrentCustomer();
+        Customer currentCustomer = customerContextService.getCurrentCustomer();
         address.setCustomer(currentCustomer);
 
         Country country = countryRepository.findById(addressRequest.getCountryId()).orElseThrow(
@@ -107,7 +108,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressDetailResponse getAddressDetail(Integer id) {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Address address = addressRepository.findByIdAndCustomerId(id, currentCustomerId).orElseThrow(
                 () -> new RuntimeException("Address not found with id: " + id)
         );
@@ -116,7 +117,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public List<AddressResponse> getAll() {
-        Integer currentCustomerId = authenticationService.getCurrentCustomerId();
+        Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         return addressRepository
                 .findAllByCustomerId(currentCustomerId)
                 .stream()

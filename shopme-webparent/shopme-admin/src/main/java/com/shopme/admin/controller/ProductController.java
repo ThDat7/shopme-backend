@@ -4,6 +4,7 @@ import com.shopme.admin.dto.request.ProductCreateRequest;
 import com.shopme.admin.dto.request.ProductUpdateRequest;
 import com.shopme.admin.dto.response.*;
 import com.shopme.admin.service.ProductService;
+import com.shopme.common.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
