@@ -50,6 +50,10 @@ public class Customer {
 	private String password;
 	
 	private boolean enabled;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "status", length = 15)
+	private CustomerStatus status;
 	
 	@Column(name = "created_time")
 	private Date createdTime;
@@ -61,4 +65,8 @@ public class Customer {
 	@ManyToOne
 	@JoinColumn(name = "country_id")
 	protected Country country;
+
+	//	will move to redis cache for timeout
+	@Column(name = "verification_code", length = 32)
+	private String verificationCode;
 }
