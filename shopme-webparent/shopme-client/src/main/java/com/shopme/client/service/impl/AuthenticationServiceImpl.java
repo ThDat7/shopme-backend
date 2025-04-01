@@ -81,8 +81,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new RuntimeException("Invalid authenticate information");
 
         String token = jwtTokenService.generateToken(customer);
-        return AuthenticationResponse.builder()
-                .token(token)
-                .build();
+        return authenticationMapper.toAuthenticationResponse(token, customer);
     }
 }

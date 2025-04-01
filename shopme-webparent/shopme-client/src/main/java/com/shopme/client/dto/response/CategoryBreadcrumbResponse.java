@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class CategoryBreadcrumbResponse {
     private Integer id;
     private String name;
+    private String alias;
 }

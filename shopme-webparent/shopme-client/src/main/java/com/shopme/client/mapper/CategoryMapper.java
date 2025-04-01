@@ -17,5 +17,5 @@ public interface CategoryMapper {
     ListCategoryResponse toListCategoryResponse(Set<CategoryResponse> categories, Set<CategoryBreadcrumbResponse> breadcrumbs);
 
     CategoryBreadcrumbResponse toCategoryBreadcrumbResponse(Category category);
-    CategoryBreadcrumbResponse toCategoryBreadcrumbResponse(Integer id, String name);
+    CategoryBreadcrumbResponse toCategoryBreadcrumbResponse(Integer id, String name, String alias);
 }

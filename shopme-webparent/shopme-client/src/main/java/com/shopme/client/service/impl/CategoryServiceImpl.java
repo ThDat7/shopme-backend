@@ -44,7 +44,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categories.stream()
                 .map(category -> categoryMapper
-                        .toCategoryBreadcrumbResponse((Integer) category[0], (String) category[1]))
+                        .toCategoryBreadcrumbResponse((Integer) category[0], (String) category[1], (String) category[2]))
                 .collect(Collectors.toSet());
     }
 
