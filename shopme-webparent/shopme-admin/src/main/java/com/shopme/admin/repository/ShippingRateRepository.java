@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ShippingRateRepository extends JpaRepository<ShippingRate, Integer> {
-    @Query("SELECT sr FROM ShippingRate sr WHERE CONCAT(sr.ward.name, ' ', sr.ward.district.name, ' ', " +
-            "sr.ward.district.province.name) LIKE %?1%")
+    @Query("SELECT sr FROM ShippingRate sr WHERE CONCAT(sr.district.name, ' ', sr.district.province.name, ' ', " +
+            "sr.rate) LIKE %?1%")
     Page<ShippingRate> findAll(String keyword, Pageable pageable);
 }
