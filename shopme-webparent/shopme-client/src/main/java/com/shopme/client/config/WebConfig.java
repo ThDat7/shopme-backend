@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 public class WebConfig implements WebMvcConfigurer {
     private final String FRONTEND_HOST;
 
-    public WebConfig(@Value("frontend.host") String frontendHost) {
+    public WebConfig(@Value("${frontend.host}") String frontendHost) {
         this.FRONTEND_HOST = frontendHost;
     }
 
