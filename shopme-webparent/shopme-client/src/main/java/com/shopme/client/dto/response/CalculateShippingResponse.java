@@ -6,5 +6,5 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class CalculateShippingResponse {
-    private float shippingCost;
+    private int shippingCost;
 }

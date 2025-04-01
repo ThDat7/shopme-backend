@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 public class ShippingRateUpdateRequest {
     private Integer id;
     private Integer districtId;
-    private float rate;
+    private int rate;
     private int days;
     private boolean codSupported;
 }

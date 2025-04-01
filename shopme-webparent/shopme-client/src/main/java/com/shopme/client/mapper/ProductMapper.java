@@ -22,8 +22,8 @@ public interface ProductMapper {
     ProductListResponse toProductListResponse(Product product);
 
     @Named("calculateDiscountPrice")
-    default float calculateDiscountPrice(Product product) {
-        return product.getPrice() * (1 - product.getDiscountPercent() / 100);
+    default int calculateDiscountPrice(Product product) {
+        return Math.round(product.getPrice() * (1 - product.getDiscountPercent() / 100));
     }
 
     @Mapping(target = "mainImage", ignore = true)

@@ -48,10 +48,10 @@ public class ShippingServiceImpl implements ShippingService {
         List<CartItem> cartItems = cartItemRepository
                 .findAllByCustomerIdAndProductIdIn(currentCustomerId, request.getCartItemIds());
 
-        float shippingCostTotal = 0.0f;
+        int shippingCostTotal = 0;
 
         for (CartItem item : cartItems) {
-            float shippingCost = calculateShippingCost(item, shippingRate);
+            int shippingCost = calculateShippingCost(item, shippingRate);
 
             shippingCostTotal += shippingCost;
         }
@@ -59,10 +59,10 @@ public class ShippingServiceImpl implements ShippingService {
         return shippingMapper.toCalculateShippingResponse(shippingCostTotal);
     }
 
-    public float calculateShippingCost(CartItem cartItem, ShippingRate shippingRate) {
+    public int calculateShippingCost(CartItem cartItem, ShippingRate shippingRate) {
         Product product = cartItem.getProduct();
         float dimWeight = (product.getLength() * product.getWidth() * product.getHeight()) / DIM_DIVISOR;
         float finalWeight = Math.max(product.getWeight(), dimWeight);
-        return finalWeight * cartItem.getQuantity() * shippingRate.getRate();
+        return Math.round(finalWeight * cartItem.getQuantity() * shippingRate.getRate());
     }
 }

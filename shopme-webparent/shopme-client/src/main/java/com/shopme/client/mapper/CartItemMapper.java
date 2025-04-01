@@ -18,7 +18,7 @@ public interface CartItemMapper {
     CartItemResponse toCartItemResponse(CartItem cartItem);
 
     @Named("calculateDiscountPrice")
-    default float calculateDiscountPrice(Product product) {
-        return (float) Math.round(product.getPrice() * (1 - product.getDiscountPercent() / 100) * 100) / 100;
+    default int calculateDiscountPrice(Product product) {
+        return Math.round(product.getPrice() * (1 - product.getDiscountPercent() / 100));
     }
 }

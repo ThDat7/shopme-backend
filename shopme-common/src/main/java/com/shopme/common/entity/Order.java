@@ -51,11 +51,11 @@ public class Order {
 	@Column(name = "order_time")
 	private Date orderTime;
 	
-	private float shippingCost;
-	private float productCost;
-	private float subtotal;
-	private float tax;
-	private float total;
+	private int shippingCost;
+	private int productCost;
+	private int subtotal;
+	private int tax;
+	private int total;
 	
 	private int deliverDays;
 	private Date deliverDate;

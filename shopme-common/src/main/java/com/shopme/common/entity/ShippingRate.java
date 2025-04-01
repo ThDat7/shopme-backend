@@ -15,7 +15,7 @@ public class ShippingRate {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	private float rate;
+	private int rate;
 	private int days;
 	
 	@Column(name = "cod_supported")

@@ -23,8 +23,8 @@ public class ProductDetailResponse {
 
     private boolean inStock;
 
-    private float cost;
-    private float price;
+    private int cost;
+    private int price;
     private float discountPercent;
 
     private float length;

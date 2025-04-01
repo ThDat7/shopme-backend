@@ -21,10 +21,10 @@ public class OrderDetail {
 	private Integer id;
 
 	private int quantity;
-	private float productCost;
-	private float shippingCost;
-	private float unitPrice;
-	private float subtotal;
+	private int productCost;
+	private int shippingCost;
+	private int unitPrice;
+	private int subtotal;
 	
 	@ManyToOne
 	@JoinColumn(name = "product_id")

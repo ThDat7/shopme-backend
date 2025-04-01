@@ -5,5 +5,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ShippingMapper {
-    CalculateShippingResponse toCalculateShippingResponse(Float shippingCost);
+    CalculateShippingResponse toCalculateShippingResponse(Integer shippingCost);
 }

@@ -17,8 +17,8 @@ public class BaseProductRequest {
     protected boolean enabled;
     protected boolean inStock;
 
-    protected float cost;
-    protected float price;
+    protected int cost;
+    protected int price;
     protected float discountPercent;
 
     protected float length;

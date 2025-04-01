@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 public class CartItemResponse {
     private Integer productId;
     private String name;
-    private float price;
+    private int price;
     private float discountPercent;
-    private float discountPrice;
+    private int discountPrice;
     private String mainImage;
     private Integer quantity;
 }

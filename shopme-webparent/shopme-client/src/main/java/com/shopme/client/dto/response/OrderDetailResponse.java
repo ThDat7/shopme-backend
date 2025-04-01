@@ -15,7 +15,7 @@ public class OrderDetailResponse {
     private OrderStatus status;
     private PaymentMethod paymentMethod;
     private Date createdAt;
-    private float totalPrice;
+    private int totalPrice;
     private ShippingAddressResponse shippingAddress;
     private List<OrderItemResponse> orderItems;
     private List<OrderTrackResponse> orderTracks;

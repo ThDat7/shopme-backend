@@ -14,9 +14,9 @@ public class ProductListResponse {
     private String name;
     private String mainImage;
 
-    private float price;
+    private int price;
     private float discountPercent;
-    private float discountPrice;
+    private int discountPrice;
 
     private float averageRating;
     private int reviewCount;

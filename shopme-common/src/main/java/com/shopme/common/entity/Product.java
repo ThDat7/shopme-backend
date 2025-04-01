@@ -40,9 +40,9 @@ public class Product {
     @Column(name = "in_stock")
     private boolean inStock;
 
-    private float cost;
+    private int cost;
 
-    private float price;
+    private int price;
 
     @Column(name = "discount_percent")
     private float discountPercent;

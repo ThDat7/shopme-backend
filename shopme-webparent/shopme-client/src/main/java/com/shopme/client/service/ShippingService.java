@@ -7,7 +7,7 @@ import com.shopme.common.entity.ShippingRate;
 
 public interface ShippingService {
     CalculateShippingResponse calculateShipping(CalculateShippingRequest request);
-    float calculateShippingCost(CartItem cartItem, ShippingRate shippingRate);
+    int calculateShippingCost(CartItem cartItem, ShippingRate shippingRate);
 
     ShippingRate getShippingRateByAddressId(Integer id);
 }

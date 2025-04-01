@@ -51,10 +51,10 @@ public class CheckoutServiceImpl implements CheckoutService {
         for (CartItem cartItem : cartItems) {
             Product product = cartItem.getProduct();
             int quantity = cartItem.getQuantity();
-            float productCost = product.getCost();
-            float shippingCost = shippingService.calculateShippingCost(cartItem, shippingRate);
-            float unitPrice = product.getPrice() * (1 - product.getDiscountPercent() / 100);
-            float subtotal = unitPrice * quantity;
+            int productCost = product.getCost();
+            int shippingCost = shippingService.calculateShippingCost(cartItem, shippingRate);
+            int unitPrice = Math.round(product.getPrice() * (1 - product.getDiscountPercent() / 100));
+            int subtotal = unitPrice * quantity;
             orderDetails.add(OrderDetail.builder()
                     .product(product)
                     .quantity(quantity)
@@ -86,11 +86,10 @@ public class CheckoutServiceImpl implements CheckoutService {
     }
 
     private void setOrderCost(Order order) {
-        float productCost = 0;
-        float shippingCost = 0;
-        float subtotal = 0;
-        float tax = 0;
-        ;
+        int productCost = 0;
+        int shippingCost = 0;
+        int subtotal = 0;
+        int tax = 0;
 
         for (OrderDetail orderDetail : order.getOrderDetails()) {
             productCost += orderDetail.getProductCost();
@@ -98,7 +97,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             subtotal += orderDetail.getSubtotal();
         }
 
-        float total = subtotal + shippingCost + tax;
+        int total = subtotal + shippingCost + tax;
 
         order.setProductCost(productCost);
         order.setShippingCost(shippingCost);
@@ -169,7 +168,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         if (opOrder.isEmpty())
             return;
         Order order = opOrder.get();
-        boolean isMatchAmount = Math.round(order.getTotal()) == amount;
+        boolean isMatchAmount = order.getTotal() == amount;
         if (isMatchAmount) {
             order.setStatus(OrderStatus.PAID);
             order.getOrderTracks().add(OrderTrack.builder()
@@ -204,6 +203,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .updatedTime(new Date())
                 .notes(OrderStatus.PAID.getDescription())
                 .build());
+
         orderRepository.save(order);
     }
 }

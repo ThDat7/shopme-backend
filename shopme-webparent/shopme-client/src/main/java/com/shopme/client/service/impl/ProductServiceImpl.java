@@ -97,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
                     ProductListResponse productDto = ProductListResponse.builder()
                             .id((Integer) product[0])
                             .name((String) product[1])
-                            .price((Float) product[2])
+                            .price((int) product[2])
                             .discountPercent(((Float) product[3]))
                             .mainImage((String) product[4])
                             .averageRating(((Double) product[5]).floatValue())
@@ -106,7 +106,7 @@ public class ProductServiceImpl implements ProductService {
                             .build();
 
                     productDto.setMainImage(getProductMainImageURL(productDto.getId(), productDto.getMainImage()));
-                    float discountPrice = productDto.getPrice() * (1 - productDto.getDiscountPercent() / 100);
+                    int discountPrice = Math.round(productDto.getPrice() * (1 - productDto.getDiscountPercent() / 100));
                     productDto.setDiscountPrice(discountPrice);
 
                     return productDto;

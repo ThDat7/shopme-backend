@@ -11,5 +11,5 @@ public class OrderItemResponse {
     private String productName;
     private String productMainImage;
     private int quantity;
-    private float unitPrice;
+    private int unitPrice;
 }
