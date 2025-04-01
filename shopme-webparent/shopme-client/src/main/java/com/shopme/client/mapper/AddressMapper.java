@@ -11,7 +11,8 @@ import org.mapstruct.Mapping;
 public interface AddressMapper {
 
     default AddressResponse toAddressResponse(Address address) {
-        String addressDetail = address.getAddressLine1() + ", " + address.getCity() + ", " + address.getCountry().getName();
+        String addressDetail = address.getAddressLine() + ", " + address.getWard().getName() + ", " +
+                address.getWard().getDistrict().getName() + ", " + address.getWard().getDistrict().getProvince().getName();
         String recipientName = address.getFirstName() + " " + address.getLastName();
         return AddressResponse.builder()
                 .id(address.getId())
@@ -22,11 +23,11 @@ public interface AddressMapper {
                 .build();
     }
 
-    @Mapping(target = "countryName", source = "country.name")
+    @Mapping(target = "wardId", source = "ward.id")
     AddressDetailResponse toAddressDetailResponse(Address address);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "customer", ignore = true)
-    @Mapping(target = "country", ignore = true)
+    @Mapping(target = "ward", ignore = true)
     Address toAddress(AddressRequest addressRequest);
 }

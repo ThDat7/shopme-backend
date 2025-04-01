@@ -12,10 +12,6 @@ public class CustomerInfoResponse {
     private String lastName;
     private String email;
     private String phoneNumber;
-    private String addressLine1;
-    private String city;
-    private String state;
-    private Integer countryId;
     private CustomerStatus status;
     private AuthenticationType authenticationType;
 }

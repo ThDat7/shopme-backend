@@ -11,8 +11,4 @@ public class CustomerRegistrationRequest {
     private String email;
     private String password;
     private String phoneNumber;
-    private String addressLine1;
-    private String city;
-    private String state;
-    private Integer countryId;
 }

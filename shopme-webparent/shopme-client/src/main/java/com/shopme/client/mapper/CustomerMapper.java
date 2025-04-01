@@ -13,6 +13,5 @@ public interface CustomerMapper {
     @Mapping(target = "password", ignore = true)
     Customer toCustomer(CustomerRegistrationRequest request);
 
-    @Mapping(target = "countryId", source = "country.id")
     CustomerInfoResponse toCustomerInfoResponse(Customer customer);
 }

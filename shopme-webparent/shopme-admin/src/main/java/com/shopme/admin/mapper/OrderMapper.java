@@ -20,7 +20,7 @@ public interface OrderMapper {
 
     @Named("mapAddress")
     default String mapAddress(Order order) {
-        return order.getAddressLine1() + ", " + order.getCity() + ", " + order.getCountry();
+        return order.getAddressLine() + ", " + order.getProvince() + ", " + order.getDistrict() + ", " + order.getWard();
     }
 
     @Named("mapCustomerName")

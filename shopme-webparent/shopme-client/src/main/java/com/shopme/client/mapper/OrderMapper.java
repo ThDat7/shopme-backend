@@ -23,9 +23,14 @@ public interface OrderMapper {
 
 
     @Mapping(target = "phone", source = "phoneNumber")
-    @Mapping(target = "address", expression = "java(order.getAddressLine1() + \" \" + order.getAddressLine2())")
+    @Mapping(target = "address", source = ".", qualifiedByName = "toAddressString")
     @Named("toShippingAddressResponse")
     ShippingAddressResponse toShippingAddressResponse(Order order);
+
+    @Named("toAddressString")
+    default String toAddressString(Order order) {
+        return order.getAddressLine() + ", " + order.getWard() + ", " + order.getDistrict() + ", " + order.getProvince();
+    }
 
     @Mapping(target = "productId", source = "product.id")
     @Mapping(target = "productName", source = "product.name")

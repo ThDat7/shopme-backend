@@ -22,9 +22,6 @@ public class ShippingRate {
 	private boolean codSupported;
 	
 	@ManyToOne
-	@JoinColumn(name = "country_id")
-	private Country country;
-	
-	@Column(nullable = false, length = 45)
-	private String state;
+	@JoinColumn(name = "district_id")
+	private District district;
 }

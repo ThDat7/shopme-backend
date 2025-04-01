@@ -5,8 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class CountryUpdateRequest {
-    private Integer id;
+public class DistrictCreateRequest {
     private String name;
-    private String code;
+    private Integer provinceId;
 }

@@ -5,13 +5,12 @@ import com.shopme.client.dto.response.AddressDetailResponse;
 import com.shopme.client.dto.response.AddressResponse;
 import com.shopme.client.mapper.AddressMapper;
 import com.shopme.client.repository.AddressRepository;
-import com.shopme.client.repository.CountryRepository;
+import com.shopme.client.repository.WardRepository;
 import com.shopme.client.service.AddressService;
-import com.shopme.client.service.AuthenticationService;
 import com.shopme.client.service.CustomerContextService;
 import com.shopme.common.entity.Address;
-import com.shopme.common.entity.Country;
 import com.shopme.common.entity.Customer;
+import com.shopme.common.entity.Ward;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
-    private final CountryRepository countryRepository;
+    private final WardRepository wardRepository;
     private final AddressMapper addressMapper;
     private final CustomerContextService customerContextService;
 
@@ -62,20 +61,16 @@ public class AddressServiceImpl implements AddressService {
                 () -> new RuntimeException("Address not found with id: " + id)
         );
 
-        Country country = countryRepository.findById(addressRequest.getCountryId()).orElseThrow(
-                () -> new RuntimeException("Country not found with id: " + addressRequest.getCountryId())
+        Ward ward = wardRepository.findById(addressRequest.getWardId()).orElseThrow(
+                () -> new RuntimeException("Ward not found with id: " + addressRequest.getWardId())
         );
 
-        address.setCountry(country);
+        address.setWard(ward);
 
         address.setFirstName(addressRequest.getFirstName());
         address.setLastName(addressRequest.getLastName());
         address.setPhoneNumber(addressRequest.getPhoneNumber());
-        address.setAddressLine1(addressRequest.getAddressLine1());
-        address.setAddressLine2(addressRequest.getAddressLine2());
-        address.setCity(addressRequest.getCity());
-        address.setState(addressRequest.getState());
-        address.setPostalCode(addressRequest.getPostalCode());
+        address.setAddressLine(addressRequest.getAddressLine());
         if (addressRequest.isDefaultForShipping()) {
             addressRepository.setNoneDefaultAllAddressByCustomerId(currentCustomerId);
             address.setDefaultForShipping(true);
@@ -93,10 +88,10 @@ public class AddressServiceImpl implements AddressService {
         Customer currentCustomer = customerContextService.getCurrentCustomer();
         address.setCustomer(currentCustomer);
 
-        Country country = countryRepository.findById(addressRequest.getCountryId()).orElseThrow(
-                () -> new RuntimeException("Country not found with id: " + addressRequest.getCountryId())
+        Ward ward = wardRepository.findById(addressRequest.getWardId()).orElseThrow(
+                () -> new RuntimeException("Ward not found with id: " + addressRequest.getWardId())
         );
-        address.setCountry(country);
+        address.setWard(ward);
 
         if (addressRequest.isDefaultForShipping()) {
             addressRepository.setNoneDefaultAllAddressByCustomerId(currentCustomer.getId());
@@ -123,23 +118,5 @@ public class AddressServiceImpl implements AddressService {
                 .stream()
                 .map(addressMapper::toAddressResponse)
                 .toList();
-    }
-
-    @Override
-    public void createDefaultAddress(Customer customer) {
-        Address address = Address.builder()
-                .firstName(customer.getFirstName())
-                .lastName(customer.getLastName())
-                .phoneNumber(customer.getPhoneNumber())
-                .addressLine1(customer.getAddressLine1())
-                .addressLine2(customer.getAddressLine2())
-                .city(customer.getCity())
-                .state(customer.getState())
-                .postalCode(customer.getPostalCode())
-                .country(customer.getCountry())
-                .customer(customer)
-                .defaultForShipping(true)
-                .build();
-        addressRepository.save(address);
     }
 }

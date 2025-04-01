@@ -21,6 +21,4 @@ public interface AddressService {
     AddressDetailResponse getAddressDetail(Integer id);
 
     List<AddressResponse> getAll();
-
-    void createDefaultAddress(Customer customer);
 }

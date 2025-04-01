@@ -27,21 +27,6 @@ public class Customer {
 
 	@Column(name = "phone_number", nullable = false, length = 15)
 	protected String phoneNumber;
-
-	@Column(name = "address_line_1", nullable = false, length = 64)
-	protected String addressLine1;
-
-	@Column(name = "address_line_2", length = 64)
-	protected String addressLine2;
-
-	@Column(nullable = false, length = 45)
-	protected String city;
-
-	@Column(nullable = false, length = 45)
-	protected String state;
-
-	@Column(name = "postal_code", nullable = false, length = 10)
-	protected String postalCode;
 	
 	@Column(nullable = false, unique = true, length = 45)
 	private String email;
@@ -62,11 +47,7 @@ public class Customer {
 	@Column(name = "authentication_type", length = 10)
 	private AuthenticationType authenticationType;
 
-	@ManyToOne
-	@JoinColumn(name = "country_id")
-	protected Country country;
-
 	//	will move to redis cache for timeout
-	@Column(name = "verification_code", length = 32)
+	@Column(name = "verification_code", length = 36)
 	private String verificationCode;
 }

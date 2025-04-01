@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ShippingRateListResponse {
     private Integer id;
-    private String country;
-    private String state;
+    private String province;
+    private String district;
     private float rate;
     private int days;
     private boolean codSupported;

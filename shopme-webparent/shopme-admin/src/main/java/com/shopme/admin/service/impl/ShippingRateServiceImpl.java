@@ -4,12 +4,12 @@ import com.shopme.admin.dto.request.ShippingRateCreateRequest;
 import com.shopme.admin.dto.request.ShippingRateUpdateRequest;
 import com.shopme.admin.dto.response.*;
 import com.shopme.admin.mapper.ShippingRateMapper;
-import com.shopme.admin.repository.CountryRepository;
+import com.shopme.admin.repository.DistrictRepository;
 import com.shopme.admin.repository.ShippingRateRepository;
 import com.shopme.admin.service.ShippingRateService;
-import com.shopme.common.entity.Country;
+import com.shopme.common.entity.District;
 import com.shopme.common.entity.ShippingRate;
-import com.shopme.common.entity.Category;
+import com.shopme.common.entity.Ward;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,7 +29,7 @@ public class ShippingRateServiceImpl implements ShippingRateService {
     private static final int DEFAULT_SR_PER_PAGE = 4;
 
     private final ShippingRateRepository shippingRateRepository;
-    private final CountryRepository countryRepository;
+    private final DistrictRepository districtRepository;
     private final ShippingRateMapper shippingRateMapper;
 
     private Pageable getPageableFromParams(Map<String, String> params) {
@@ -65,10 +64,10 @@ public class ShippingRateServiceImpl implements ShippingRateService {
     public ShippingRateDetailResponse createShippingRate(ShippingRateCreateRequest request) {
         ShippingRate shippingRate = shippingRateMapper.toEntity(request);
 
-        // Set country
-        Country country = countryRepository.findById(request.getCountryId())
-                .orElseThrow(() -> new RuntimeException("Country not found"));
-        shippingRate.setCountry(country);
+        // Set ward
+        District district = districtRepository.findById(request.getDistrictId())
+                .orElseThrow(() -> new RuntimeException("District not found"));
+        shippingRate.setDistrict(district);
 
         shippingRateRepository.save(shippingRate);
         return shippingRateMapper.toShippingRateDetailResponse(shippingRate);
@@ -82,14 +81,13 @@ public class ShippingRateServiceImpl implements ShippingRateService {
                 .orElseThrow(() -> new RuntimeException("ShippingRate not found"));
 
         shippingRate.setRate(request.getRate());
-        shippingRate.setState(request.getState());
         shippingRate.setDays(request.getDays());
         shippingRate.setCodSupported(request.isCodSupported());
 
-        // Set country
-        Country country = countryRepository.findById(request.getCountryId())
-                .orElseThrow(() -> new RuntimeException("Country not found"));
-        shippingRate.setCountry(country);
+        // Set province
+        District district = districtRepository.findById(request.getDistrictId())
+                .orElseThrow(() -> new RuntimeException("District not found"));
+        shippingRate.setDistrict(district);
 
         shippingRateRepository.save(shippingRate);
         return shippingRateMapper.toShippingRateDetailResponse(shippingRate);

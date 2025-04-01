@@ -34,10 +34,9 @@ public class ShippingServiceImpl implements ShippingService {
         Address address = addressRepository.findByIdAndCustomerId(addressId, currentCustomerId)
                 .orElseThrow(() -> new IllegalArgumentException("Address not found"));
 
-        Country country = address.getCountry();
-        String state = address.getState();
+        District district = address.getWard().getDistrict();
 
-        return shippingRateRepository.findByCountryAndState(country, state)
+        return shippingRateRepository.findByDistrict(district)
                 .orElseThrow(() -> new IllegalArgumentException("Your address is not supported"));
     }
 

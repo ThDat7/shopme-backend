@@ -71,12 +71,10 @@ public class CheckoutServiceImpl implements CheckoutService {
         order.setFirstName(address.getFirstName());
         order.setLastName(address.getLastName());
         order.setPhoneNumber(address.getPhoneNumber());
-        order.setAddressLine1(address.getAddressLine1());
-        order.setAddressLine2(address.getAddressLine2());
-        order.setCity(address.getCity());
-        order.setState(address.getState());
-        order.setPostalCode(address.getPostalCode());
-        order.setCountry(address.getCountry().getName());
+        order.setAddressLine(address.getAddressLine());
+        order.setProvince(address.getWard().getDistrict().getProvince().getName());
+        order.setDistrict(address.getWard().getDistrict().getName());
+        order.setWard(address.getWard().getName());
     }
 
     private void setOrderShipping(Order order, Address address) {

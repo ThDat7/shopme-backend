@@ -7,14 +7,11 @@ import com.shopme.client.dto.request.CustomerVerifyEmailRequest;
 import com.shopme.client.dto.response.AuthenticationResponse;
 import com.shopme.client.dto.response.CustomerInfoResponse;
 import com.shopme.client.dto.response.CustomerVerifyEmailResponse;
-import com.shopme.client.exception.type.*;
 import com.shopme.client.mapper.AuthenticationMapper;
 import com.shopme.client.mapper.CustomerMapper;
-import com.shopme.client.repository.CountryRepository;
 import com.shopme.client.repository.CustomerRepository;
 import com.shopme.client.service.*;
 import com.shopme.common.entity.AuthenticationType;
-import com.shopme.common.entity.Country;
 import com.shopme.common.entity.Customer;
 import com.shopme.common.entity.CustomerStatus;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +27,8 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerContextService customerContextService;
     private final JwtTokenService jwtTokenService;
     private final EmailService emailService;
-    private final AddressService addressService;
     private final PasswordEncoder passwordEncoder;
     private final CustomerRepository customerRepository;
-    private final CountryRepository countryRepository;
     private final CustomerMapper customerMapper;
     private final AuthenticationMapper authenticationMapper;
 
@@ -46,11 +41,6 @@ public class CustomerServiceImpl implements CustomerService {
                             .enabled(true)
                             .createdTime(new Date())
 //                                empty data temporary, will handle later
-                            .addressLine1("")
-                            .addressLine2("")
-                            .city("")
-                            .state("")
-                            .postalCode("")
                             .phoneNumber("")
                             .status(CustomerStatus.NEED_INFO)
                             .build();
@@ -72,21 +62,15 @@ public class CustomerServiceImpl implements CustomerService {
 
         Customer customer = customerMapper.toCustomer(request);
 //                mock postal code, will remove that field soon
-        customer.setPostalCode("");
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
         customer.setEnabled(true);
         customer.setCreatedTime(new Date());
         customer.setAuthenticationType(AuthenticationType.DATABASE);
         customer.setStatus(CustomerStatus.UNVERIFIED);
 
-        Country country = countryRepository.findById(request.getCountryId())
-                .orElseThrow(() -> new RuntimeException("Country not found"));
-        customer.setCountry(country);
-
         String randomUUID = UUID.randomUUID().toString();
         customer.setVerificationCode(randomUUID);
         customerRepository.save(customer);
-        addressService.createDefaultAddress(customer);
 
         emailService.sendVerificationEmail(customer.getEmail(), randomUUID);
         String token = jwtTokenService.generateToken(customer);
@@ -150,18 +134,9 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setFirstName(request.getFirstName());
         customer.setLastName(request.getLastName());
         customer.setPhoneNumber(request.getPhoneNumber());
-        customer.setAddressLine1(request.getAddressLine1());
-        customer.setCity(request.getCity());
-        customer.setState(request.getState());
 
-        Country country = countryRepository.findById(request.getCountryId())
-                .orElseThrow(() -> new RuntimeException("Country not found"));
-        customer.setCountry(country);
-
-        if (customer.getStatus() == CustomerStatus.NEED_INFO) {
+        if (customer.getStatus() == CustomerStatus.NEED_INFO)
             customer.setStatus(CustomerStatus.VERIFIED);
-            addressService.createDefaultAddress(customer);
-        }
 
         updateEmailAndPassword(customer, request.getEmail(), request.getPassword());
 

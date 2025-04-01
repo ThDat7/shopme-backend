@@ -32,23 +32,21 @@ public class Order {
 	@Column(name = "phone_number", nullable = false, length = 15)
 	private String phoneNumber;
 
-	@Column(name = "address_line_1", nullable = false, length = 64)
-	private String addressLine1;
+//	@Column(name = "address_line", nullable = false, length = 64)
+	@Column(name = "address_line", length = 64)
+	private String addressLine;
 
-	@Column(name = "address_line_2", length = 64)
-	private String addressLine2;
-
+//	@Column(nullable = false, length = 45)
 	@Column(nullable = false, length = 45)
-	private String city;
+	private String province;
 
+	//	@Column(nullable = false, length = 45)
 	@Column(nullable = false, length = 45)
-	private String state;
+	private String district;
 
-	@Column(name = "postal_code", nullable = false, length = 10)
-	private String postalCode;
-
+	//	@Column(nullable = false, length = 45)
 	@Column(nullable = false, length = 45)
-	private String country;
+	private String ward;
 
 	@Column(name = "order_time")
 	private Date orderTime;

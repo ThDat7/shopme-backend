@@ -1,12 +1,12 @@
-package com.shopme.admin.dto.request;
+package com.shopme.admin.dto.response;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class StateUpdateRequest {
+public class DistrictDetailResponse {
     private Integer id;
     private String name;
-    private Integer countryId;
+    private Integer provinceId;
 }

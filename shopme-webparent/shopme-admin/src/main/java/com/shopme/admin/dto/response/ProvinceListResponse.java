@@ -5,8 +5,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class StateDetailResponse {
+public class ProvinceListResponse {
     private Integer id;
     private String name;
-    private Integer countryId;
+    private String code;
 }

@@ -26,24 +26,13 @@ public class Address {
 	@Column(name = "phone_number", nullable = false, length = 15)
 	private String phoneNumber;
 
-	@Column(name = "address_line_1", nullable = false, length = 64)
-	private String addressLine1;
-
-	@Column(name = "address_line_2", length = 64)
-	private String addressLine2;
-
-	@Column(nullable = false, length = 45)
-	private String city;
-
-	@Column(nullable = false, length = 45)
-	private String state;
-
-	@Column(name = "postal_code", nullable = false, length = 10)
-	private String postalCode;
+//	@Column(name = "address_line", nullable = false, length = 64)
+	@Column(name = "address_line", length = 64)
+	private String addressLine;
 
 	@ManyToOne
-	@JoinColumn(name = "country_id", nullable = false)
-	private Country country;
+	@JoinColumn(name = "ward_id", nullable = false)
+	private Ward ward;
 	
 	@ManyToOne
 	@JoinColumn(name = "customer_id", nullable = false)

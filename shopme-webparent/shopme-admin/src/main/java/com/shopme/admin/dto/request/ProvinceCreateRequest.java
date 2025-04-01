@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class CountryCreateRequest {
+public class ProvinceCreateRequest {
     private String name;
     private String code;
 }
