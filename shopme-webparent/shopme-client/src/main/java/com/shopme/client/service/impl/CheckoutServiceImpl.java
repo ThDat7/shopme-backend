@@ -23,6 +23,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class CheckoutServiceImpl implements CheckoutService {
 
+    private final ProductPriceService productPriceService;
     private final ShippingService shippingService;
     private final PaymentService paymentService;
 
@@ -53,7 +54,8 @@ public class CheckoutServiceImpl implements CheckoutService {
             int quantity = cartItem.getQuantity();
             int productCost = product.getCost();
             int shippingCost = shippingService.calculateShippingCost(cartItem, shippingRate);
-            int unitPrice = Math.round(product.getPrice() * (1 - product.getDiscountPercent() / 100));
+
+            int unitPrice = productPriceService.calculateFinalPrice(product);
             int subtotal = unitPrice * quantity;
             orderDetails.add(OrderDetail.builder()
                     .product(product)

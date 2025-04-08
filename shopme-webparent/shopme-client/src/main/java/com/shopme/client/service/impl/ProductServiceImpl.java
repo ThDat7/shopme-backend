@@ -8,6 +8,7 @@ import com.shopme.client.mapper.ProductMapper;
 import com.shopme.client.repository.ProductRepository;
 import com.shopme.client.service.CategoryService;
 import com.shopme.client.service.FileUploadService;
+import com.shopme.client.service.ProductPriceService;
 import com.shopme.client.service.ProductService;
 import com.shopme.common.entity.Product;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class ProductServiceImpl implements ProductService {
     private static final int DEFAULT_PRODUCTS_PER_PAGE = 4;
 
     private final FileUploadService fileUploadService;
+    private final ProductPriceService productPriceService;
     private final CategoryService categoryService;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
@@ -67,6 +69,13 @@ public class ProductServiceImpl implements ProductService {
                 .map(product -> {
                     var productDto = productMapper.toProductListResponse(product);
                     productDto.setMainImage(getProductMainImageURL(product.getId(), product.getMainImage()));
+
+                    ProductPriceResponse productPriceResponse = productPriceService
+                            .calculateProductPriceResponse(product.getId());
+                    productDto.setPrice(productPriceResponse.getPrice());
+                    productDto.setDiscountPercent(productPriceResponse.getDiscountPercent());
+                    productDto.setDiscountPrice(productPriceResponse.getDiscountPrice());
+
                     return productDto;
                 })
                 .collect(Collectors.toList());
@@ -88,6 +97,13 @@ public class ProductServiceImpl implements ProductService {
         productDto.setMainImage(getProductMainImageURL(product.getId(), product.getMainImage()));
         productDto.setImages(getProductImageResponses(product));
         productDto.setBreadcrumbs(categoryBreadcrumbs);
+
+        ProductPriceResponse productPriceResponse = productPriceService
+                .calculateProductPriceResponse(product.getId());
+        productDto.setPrice(productPriceResponse.getPrice());
+        productDto.setDiscountPercent(productPriceResponse.getDiscountPercent());
+        productDto.setDiscountPrice(productPriceResponse.getDiscountPrice());
+
         return productDto;
     }
 
@@ -97,8 +113,6 @@ public class ProductServiceImpl implements ProductService {
                     ProductListResponse productDto = ProductListResponse.builder()
                             .id((Integer) product[0])
                             .name((String) product[1])
-                            .price((int) product[2])
-                            .discountPercent(((Float) product[3]))
                             .mainImage((String) product[4])
                             .averageRating(((Double) product[5]).floatValue())
                             .reviewCount(((Long) product[6]).intValue())
@@ -106,8 +120,12 @@ public class ProductServiceImpl implements ProductService {
                             .build();
 
                     productDto.setMainImage(getProductMainImageURL(productDto.getId(), productDto.getMainImage()));
-                    int discountPrice = Math.round(productDto.getPrice() * (1 - productDto.getDiscountPercent() / 100));
-                    productDto.setDiscountPrice(discountPrice);
+
+                    ProductPriceResponse productPriceResponse = productPriceService
+                            .calculateProductPriceResponse(productDto.getId());
+                    productDto.setPrice(productPriceResponse.getPrice());
+                    productDto.setDiscountPercent(productPriceResponse.getDiscountPercent());
+                    productDto.setDiscountPrice(productPriceResponse.getDiscountPrice());
 
                     return productDto;
                 })
