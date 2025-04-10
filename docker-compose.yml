@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: shopme-mysql
+    env_file:
+      - .env.dev
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+    ports:
+      - '${MYSQL_EXTERNAL_PORT}:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - shopme-network
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      timeout: 20s
+      retries: 10
+
+  admin:
+    build:
+      dockerfile: Dockerfile-admin
+    container_name: shopme-admin
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - .env.dev
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASS}
+    networks:
+      - shopme-network
+
+  client:
+    build:
+      dockerfile: Dockerfile-client
+    container_name: shopme-client
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - .env.dev
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASS}
+      SPRING_PROFILES_ACTIVE: ${CLIENT_SPRING_PROFILE}
+      PUBLIC_HOST: ${CLIENT_PUBLIC_HOST}
+    networks:
+      - shopme-network
+
+volumes:
+  mysql_data:
+
+networks:
+  shopme-network:
+    driver: bridge
