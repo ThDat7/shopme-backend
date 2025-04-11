@@ -2,6 +2,7 @@ package com.shopme.common.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,11 +24,8 @@ public class Product {
     @Column(unique = true, length = 255, nullable = false)
     private String alias;
 
-    @Column(length = 1024, nullable = false, name = "short_description")
-    private String shortDescription;
-
-    @Column(length = 4096, nullable = false, name = "full_description")
-    private String fullDescription;
+    @Column(length = 15360, name = "description", columnDefinition = "TEXT")
+    private String description;
 
     @Column(name = "created_time", nullable = false, updatable = false)
     private Date createdTime;
@@ -63,11 +61,17 @@ public class Product {
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductImage> images = new HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductDetail> details = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product")
+    private List<OrderDetail> orderDetails;
+
+    @OneToMany(mappedBy = "product")
+    private List<PromotionProduct> promotionProducts;
 
     @Override
     public int hashCode() {

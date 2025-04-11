@@ -11,17 +11,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDetail {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(nullable = false, length = 255)
-    private String name;
-
-    @Column(nullable = false, length = 255)
-    private String value;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+	
+	@Column(nullable = false, length = 255)
+	private String name;
+	
+	@Column(nullable = false, length = 1023)
+	private String value;
+	
+	@ManyToOne
+	@JoinColumn(name = "product_id")
+	private Product product;
 }
