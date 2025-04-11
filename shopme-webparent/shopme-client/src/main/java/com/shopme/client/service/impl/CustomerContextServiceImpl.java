@@ -1,5 +1,7 @@
 package com.shopme.client.service.impl;
 
+import com.shopme.client.exception.type.CustomerNotFoundException;
+import com.shopme.client.exception.type.UnAuthenticatedException;
 import com.shopme.client.repository.CustomerRepository;
 import com.shopme.client.service.CustomerContextService;
 import com.shopme.common.entity.Customer;
@@ -22,13 +24,15 @@ public class CustomerContextServiceImpl implements CustomerContextService {
             Long customerId = jwt.getClaim("customerId");
             return customerId.intValue();
         } catch (RuntimeException e) {
-            throw new RuntimeException("Unauthorized");
+            throw new UnAuthenticatedException();
         }
     }
 
     @Override
     public Customer getCurrentCustomer() {
         Integer customerId = getCurrentCustomerId();
-        return customerRepository.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found"));
+        return customerRepository.findById(customerId).orElseThrow(
+            CustomerNotFoundException::new
+        );
     }
 }

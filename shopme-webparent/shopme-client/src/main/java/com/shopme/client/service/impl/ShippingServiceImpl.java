@@ -2,6 +2,8 @@ package com.shopme.client.service.impl;
 
 import com.shopme.client.dto.request.CalculateShippingRequest;
 import com.shopme.client.dto.response.CalculateShippingResponse;
+import com.shopme.client.exception.type.AddressNotFoundException;
+import com.shopme.client.exception.type.AddressNotSupportShippingException;
 import com.shopme.client.mapper.ShippingMapper;
 import com.shopme.client.repository.AddressRepository;
 import com.shopme.client.repository.CartItemRepository;
@@ -32,7 +34,7 @@ public class ShippingServiceImpl implements ShippingService {
     public ShippingRate getShippingRateByAddressId(Integer addressId) {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Address address = addressRepository.findByIdAndCustomerId(addressId, currentCustomerId)
-                .orElseThrow(() -> new IllegalArgumentException("Address not found"));
+                .orElseThrow(AddressNotFoundException::new);
 
         District district = address.getWard().getDistrict();
 

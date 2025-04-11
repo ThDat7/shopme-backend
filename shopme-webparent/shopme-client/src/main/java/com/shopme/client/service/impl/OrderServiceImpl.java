@@ -3,6 +3,8 @@ package com.shopme.client.service.impl;
 import com.shopme.client.dto.response.ListResponse;
 import com.shopme.client.dto.response.OrderDetailResponse;
 import com.shopme.client.dto.response.OrderListResponse;
+import com.shopme.client.exception.type.OrderCancelStatusException;
+import com.shopme.client.exception.type.OrderNotFoundException;
 import com.shopme.client.mapper.OrderMapper;
 import com.shopme.client.repository.OrderRepository;
 import com.shopme.client.service.*;
@@ -58,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
     public void cancelOrder(Integer orderId) {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Order order = orderRepository.findByIdAndCustomerId(orderId, currentCustomerId).orElseThrow(
-                () -> new IllegalArgumentException("Order not found with Id: " + orderId)
+                OrderNotFoundException::new
         );
         if (order.getStatus() == OrderStatus.NEW)
             updateOrderStatusStatic(order, OrderStatus.CANCELLED);
@@ -66,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
                 order.getPaymentMethod() == PaymentMethod.PAY_OS)
             handleCancelPayOSOrder(order);
         else
-            throw new IllegalArgumentException("Order can not be cancelled because it is in " + order.getStatus() + " status");
+            throw new OrderCancelStatusException(order.getStatus());
 
 
         orderRepository.save(order);
@@ -81,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderStatus getOrderStatus(Integer orderId) {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Order order = orderRepository.findByIdAndCustomerId(orderId, currentCustomerId).orElseThrow(
-                () -> new IllegalArgumentException("Order not found with Id: " + orderId)
+                OrderNotFoundException::new
         );
         return order.getStatus();
     }
@@ -107,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDetailResponse getOrder(Integer orderId) {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Order order = orderRepository.findByIdAndCustomerId(orderId, currentCustomerId).orElseThrow(
-                () -> new IllegalArgumentException("Order not found with Id: " + orderId)
+                OrderNotFoundException::new
         );
         OrderDetailResponse orderDetailResponse = orderMapper.toOrderDetailResponse(order);
         orderDetailResponse.getOrderItems().stream()

@@ -3,6 +3,7 @@ package com.shopme.client.service.impl;
 import com.shopme.client.dto.request.AddressRequest;
 import com.shopme.client.dto.response.AddressDetailResponse;
 import com.shopme.client.dto.response.AddressResponse;
+import com.shopme.client.exception.type.CountryNotFoundException;
 import com.shopme.client.mapper.AddressMapper;
 import com.shopme.client.repository.AddressRepository;
 import com.shopme.client.repository.WardRepository;
@@ -14,6 +15,7 @@ import com.shopme.common.entity.Ward;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.shopme.client.exception.type.AddressNotFoundException;
 
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class AddressServiceImpl implements AddressService {
     public void deleteAddress(Integer id) {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Address address = addressRepository.findByIdAndCustomerId(id, currentCustomerId).orElseThrow(
-                () -> new RuntimeException("Address not found with id: " + id)
+                AddressNotFoundException::new
         );
         addressRepository.delete(address);
     }
@@ -46,7 +48,7 @@ public class AddressServiceImpl implements AddressService {
     public void setDefaultAddress(Integer id) {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Address address = addressRepository.findByIdAndCustomerId(id, currentCustomerId).orElseThrow(
-                () -> new RuntimeException("Address not found with id: " + id)
+                AddressNotFoundException::new
         );
         addressRepository.setNoneDefaultAllAddressByCustomerId(currentCustomerId);
         address.setDefaultForShipping(true);
@@ -58,11 +60,11 @@ public class AddressServiceImpl implements AddressService {
     public AddressDetailResponse updateAddress(Integer id, AddressRequest addressRequest) {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Address address = addressRepository.findByIdAndCustomerId(id, currentCustomerId).orElseThrow(
-                () -> new RuntimeException("Address not found with id: " + id)
+                AddressNotFoundException::new
         );
 
         Ward ward = wardRepository.findById(addressRequest.getWardId()).orElseThrow(
-                () -> new RuntimeException("Ward not found with id: " + addressRequest.getWardId())
+                CountryNotFoundException::new
         );
 
         address.setWard(ward);
@@ -89,7 +91,7 @@ public class AddressServiceImpl implements AddressService {
         address.setCustomer(currentCustomer);
 
         Ward ward = wardRepository.findById(addressRequest.getWardId()).orElseThrow(
-                () -> new RuntimeException("Ward not found with id: " + addressRequest.getWardId())
+                CountryNotFoundException::new
         );
         address.setWard(ward);
 
@@ -105,7 +107,7 @@ public class AddressServiceImpl implements AddressService {
     public AddressDetailResponse getAddressDetail(Integer id) {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         Address address = addressRepository.findByIdAndCustomerId(id, currentCustomerId).orElseThrow(
-                () -> new RuntimeException("Address not found with id: " + id)
+                AddressNotFoundException::new
         );
         return addressMapper.toAddressDetailResponse(address);
     }

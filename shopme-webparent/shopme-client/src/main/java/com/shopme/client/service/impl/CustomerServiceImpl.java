@@ -7,6 +7,10 @@ import com.shopme.client.dto.request.CustomerVerifyEmailRequest;
 import com.shopme.client.dto.response.AuthenticationResponse;
 import com.shopme.client.dto.response.CustomerInfoResponse;
 import com.shopme.client.dto.response.CustomerVerifyEmailResponse;
+import com.shopme.client.exception.type.CustomerAlreadyVerifiedException;
+import com.shopme.client.exception.type.CustomerNotFoundException;
+import com.shopme.client.exception.type.EmailExistsException;
+import com.shopme.client.exception.type.VerificationCodeInvalidException;
 import com.shopme.client.mapper.AuthenticationMapper;
 import com.shopme.client.mapper.CustomerMapper;
 import com.shopme.client.repository.CustomerRepository;
@@ -58,7 +62,7 @@ public class CustomerServiceImpl implements CustomerService {
     public AuthenticationResponse register(CustomerRegistrationRequest request) {
         boolean isEmailExist = customerRepository.existsByEmail(request.getEmail());
         if (isEmailExist)
-            throw new RuntimeException("Email already exists");
+            throw new EmailExistsException();
 
         Customer customer = customerMapper.toCustomer(request);
 //                mock postal code, will remove that field soon
@@ -80,11 +84,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerVerifyEmailResponse verify(CustomerVerifyEmailRequest request) {
         Customer currentCustomer = customerRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(CustomerNotFoundException::new);
 
         boolean isMatch = currentCustomer.getVerificationCode().equals(request.getVerificationCode());
         if (!isMatch)
-            throw new RuntimeException("Verification code is not valid");
+            throw new VerificationCodeInvalidException();
 
         currentCustomer.setStatus(CustomerStatus.VERIFIED);
         currentCustomer.setVerificationCode(null);
@@ -96,10 +100,10 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void resendVerification(CustomerResendVerifyEmailRequest request) {
         Customer currentCustomer = customerRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(CustomerNotFoundException::new);
 
         if (currentCustomer.getStatus() == CustomerStatus.VERIFIED)
-            throw new RuntimeException("Customer already verified");
+            throw new CustomerAlreadyVerifiedException();
 
         currentCustomer.setVerificationCode(UUID.randomUUID().toString());
         emailService.sendVerificationEmail(currentCustomer.getEmail(), currentCustomer.getVerificationCode());

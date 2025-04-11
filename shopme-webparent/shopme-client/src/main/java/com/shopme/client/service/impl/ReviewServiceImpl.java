@@ -4,6 +4,7 @@ import com.shopme.client.dto.request.OrderReviewRequest;
 import com.shopme.client.dto.response.ListResponse;
 import com.shopme.client.dto.response.OrderReviewResponse;
 import com.shopme.client.dto.response.ProductReviewResponse;
+import com.shopme.client.exception.type.OrderDetailNotFoundException;
 import com.shopme.client.mapper.ReviewMapper;
 import com.shopme.client.repository.OrderDetailRepository;
 import com.shopme.client.repository.ReviewRepository;
@@ -67,7 +68,7 @@ public class ReviewServiceImpl implements ReviewService {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         OrderDetail orderDetail = orderDetailRepository
                 .findByIdAndOrderCustomerId(orderDetailId, currentCustomerId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID: " + orderDetailId));
+                .orElseThrow(OrderDetailNotFoundException::new);
 
         Review review = reviewMapper.toReview(request);
         review.setId(null);
@@ -83,7 +84,7 @@ public class ReviewServiceImpl implements ReviewService {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
 
         Review review = reviewRepository.findByOrderDetailIdAndCustomerId(orderDetailId, currentCustomerId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID: " + orderDetailId));
+                .orElseThrow(OrderDetailNotFoundException::new);
         review.setHeadline(request.getHeadline());
         review.setRating(request.getRating());
         review.setComment(request.getComment());
@@ -98,7 +99,7 @@ public class ReviewServiceImpl implements ReviewService {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
 
         Review review = reviewRepository.findByOrderDetailIdAndCustomerId(orderDetailId, currentCustomerId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID: " + orderDetailId));
+                .orElseThrow(OrderDetailNotFoundException::new);
         reviewRepository.delete(review);
     }
 }

@@ -5,6 +5,7 @@ import com.shopme.client.dto.request.PlaceOrderCODRequest;
 import com.shopme.client.dto.request.PlaceOrderPayOSRequest;
 import com.shopme.client.dto.response.PayOSACKResponse;
 import com.shopme.client.dto.response.PlaceOrderPayOSResponse;
+import com.shopme.client.exception.type.AddressNotFoundException;
 import com.shopme.client.mapper.CheckoutMapper;
 import com.shopme.client.repository.AddressRepository;
 import com.shopme.client.repository.CartItemRepository;
@@ -42,7 +43,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     private Address getAddress(Integer addressId) {
         Integer currentCustomerId = customerContextService.getCurrentCustomerId();
         return addressRepository.findByIdAndCustomerId(addressId, currentCustomerId)
-                .orElseThrow(() -> new IllegalArgumentException("Address not found"));
+                .orElseThrow(AddressNotFoundException::new);
     }
 
     private Set<OrderDetail> generateOrderDetails(List<CartItem> cartItems, Address address) {

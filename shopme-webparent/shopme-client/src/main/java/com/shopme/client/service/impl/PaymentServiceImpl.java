@@ -1,6 +1,9 @@
 package com.shopme.client.service.impl;
 
 import com.shopme.client.dto.response.PayOSACKResponse;
+import com.shopme.client.exception.type.AcceptPaymentException;
+import com.shopme.client.exception.type.PayOSCancelException;
+import com.shopme.client.exception.type.PayOSGenerateException;
 import com.shopme.client.service.PaymentService;
 import com.shopme.common.entity.Order;
 import com.shopme.common.entity.PaymentMethod;
@@ -53,7 +56,7 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             return payOS.createPaymentLink(paymentData);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate PayOS response: ", e);
+            throw new PayOSGenerateException();
         }
     }
 
@@ -65,7 +68,7 @@ public class PaymentServiceImpl implements PaymentService {
             Integer amount = data.getAmount();
             onOrderPaid.accept(orderCode, amount);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to handle PayOS webhook: ", e);
+            throw new AcceptPaymentException();
         }
         return PayOSACKResponse.builder().success(true).build();
     }
@@ -76,7 +79,7 @@ public class PaymentServiceImpl implements PaymentService {
             String cancelReason = "User cancelled the order";
             payOS.cancelPaymentLink(orderId, cancelReason);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to cancel PayOS payment: ", e);
+            throw new PayOSCancelException();
         }
     }
 }

@@ -2,6 +2,8 @@ package com.shopme.client.service.impl;
 
 import com.shopme.client.dto.request.CartItemRequest;
 import com.shopme.client.dto.response.CartItemResponse;
+import com.shopme.client.dto.response.ProductPriceResponse;
+import com.shopme.client.exception.type.ProductNotFoundException;
 import com.shopme.client.mapper.CartItemMapper;
 import com.shopme.client.repository.CartItemRepository;
 import com.shopme.client.repository.ProductRepository;
@@ -45,8 +47,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         CartItem cartItem = cartItemRepository.findByCustomerAndProduct_Id(Customer, request.getProductId());
         if (cartItem == null) {
             Product product = productRepository.findById(request.getProductId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Product with id " + request.getProductId() + " not found"));
+                    .orElseThrow(ProductNotFoundException::new);
             cartItem = new CartItem();
             cartItem.setProduct(product);
             cartItem.setCustomer(Customer);

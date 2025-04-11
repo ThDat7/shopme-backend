@@ -9,6 +9,9 @@ import com.shopme.client.dto.request.GoogleAuthenticationRequest;
 import com.shopme.client.dto.request.IntrospectRequest;
 import com.shopme.client.dto.response.AuthenticationResponse;
 import com.shopme.client.dto.response.IntrospectResponse;
+import com.shopme.client.exception.type.CustomerNotFoundException;
+import com.shopme.client.exception.type.InvalidAuthenticationException;
+import com.shopme.client.exception.type.TokenInvalidException;
 import com.shopme.client.mapper.AuthenticationMapper;
 import com.shopme.client.repository.CustomerRepository;
 import com.shopme.client.service.AuthenticationService;
@@ -45,7 +48,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new RuntimeException(e);
         }
         if (idToken == null)
-            throw new RuntimeException("Invalid token");
+            throw new TokenInvalidException();
 
         GoogleIdToken.Payload payload = idToken.getPayload();
         String email = payload.getEmail();
@@ -67,18 +70,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             boolean isValid = expiryTime.after(new Date());
             return authenticationMapper.toIntrospectResponse(isValid);
         } catch (ParseException | JOSEException e) {
-            throw new RuntimeException(e);
+            throw new TokenInvalidException();
         }
     }
 
     @Override
     public AuthenticationResponse login(CustomerLoginRequest request) {
         Customer customer = customerRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(CustomerNotFoundException::new);
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), customer.getPassword());
         if (!authenticated)
-            throw new RuntimeException("Invalid authenticate information");
+            throw new InvalidAuthenticationException();
 
         String token = jwtTokenService.generateToken(customer);
         return authenticationMapper.toAuthenticationResponse(token, customer);

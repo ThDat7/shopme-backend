@@ -1,6 +1,7 @@
 package com.shopme.client.service.impl;
 
 import com.shopme.client.dto.response.*;
+import com.shopme.client.exception.type.PromotionNotFoundException;
 import com.shopme.client.mapper.PromotionMapper;
 import com.shopme.client.repository.PromotionProductRepository;
 import com.shopme.client.repository.PromotionRepository;
@@ -30,7 +31,7 @@ public class PromotionServiceImpl implements PromotionService {
     @Override
     public PromotionDetailResponse getCurrentPromotionActiveById(Integer id) {
         Promotion promotion = promotionRepository.findActivePromotionById(id)
-                .orElseThrow(() -> new RuntimeException("Promotion not found with id: " + id));
+                .orElseThrow(PromotionNotFoundException::new);
 
         return promotionMapper.toPromotionDetailResponse(promotion);
     }

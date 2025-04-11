@@ -5,6 +5,8 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.shopme.client.exception.type.GenerateTokenException;
+import com.shopme.client.exception.type.TokenInvalidException;
 import com.shopme.client.service.JwtTokenService;
 import com.shopme.common.entity.Customer;
 import lombok.Setter;
@@ -43,7 +45,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
             jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
             return jwsObject.serialize();
         } catch (JOSEException e) {
-            throw new RuntimeException(e);
+            throw new GenerateTokenException();
         }
     }
 
@@ -54,7 +56,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
         if (signedJWT.verify(verifier)) {
             return signedJWT;
         } else {
-            throw new RuntimeException("Invalid token");
+            throw new TokenInvalidException();
         }
     }
 
