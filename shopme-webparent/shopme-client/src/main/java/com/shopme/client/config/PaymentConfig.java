@@ -29,10 +29,14 @@ public class PaymentConfig {
     @Bean
     public PayOS payOS() {
         List<Setting> paymentSettings = settingService.getSettingsByCategory(SettingCategory.PAYMENT);
+
+        if (paymentSettings == null)
+            return new PayOS("", "", "");
+
         String clientId = getSettingValue(paymentSettings, SettingKey.PAYOS_CLIENT_ID);
         String apiKey = getSettingValue(paymentSettings, SettingKey.PAYOS_API_KEY);
         String checksumKey = getSettingValue(paymentSettings, SettingKey.PAYOS_CHECKSUM_KEY);
-
         return new PayOS(clientId, apiKey, checksumKey);
     }
+
 }

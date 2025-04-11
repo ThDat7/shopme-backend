@@ -30,6 +30,9 @@ public class MailSenderConfig {
     @Bean
     public JavaMailSender mailSender() {
         List<Setting> mailServerSettings = settingService.getSettingsByCategory(SettingCategory.MAIL_SERVER);
+        if (mailServerSettings.isEmpty())
+            return new JavaMailSenderImpl();
+
         String host = getSettingValue(mailServerSettings, SettingKey.MAIL_SERVER_HOST);
         int port = Integer.parseInt(getSettingValue(mailServerSettings, SettingKey.MAIL_SERVER_PORT));
         String username = getSettingValue(mailServerSettings, SettingKey.MAIL_SERVER_USERNAME);

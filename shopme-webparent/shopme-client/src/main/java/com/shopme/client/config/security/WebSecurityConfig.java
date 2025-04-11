@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -51,11 +52,45 @@ public class WebSecurityConfig {
 
         http.authorizeHttpRequests(request ->
                 request
-                        .requestMatchers("/**").permitAll()
-                        .anyRequest().access(authorizationManager())
+                        // Public endpoints - no authentication required
+                        .requestMatchers(publicEndpoints()).permitAll()
+
+                        // Protected endpoints - authentication required
+                        .requestMatchers(authenticatedEndpoints()).access(authorizationManager())
+
+                        // Fallback - require authentication for any other requests
+                        .anyRequest().authenticated()
         );
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
+    }
+
+    private String[] publicEndpoints() {
+        return new String[]{
+                "/api/v1/auth/**",
+                "/api/v1/customers/register",
+                "/api/v1/customers/verify",
+                "/api/v1/customers/resend-verification",
+                "/api/v1/products/**",
+                "/api/v1/categories/**",
+                "/api/v1/brands/**",
+                "/api/v1/promotions/**",
+                "/api/v1/feature-categories/**",
+                "/api/v1/locations/**",
+                "/api/v1/reviews//product/**"
+        };
+    }
+
+    private String[] authenticatedEndpoints() {
+        return new String[]{
+                "/api/v1/customers/profile",
+                "/api/v1/customers/profile/**",
+                "/api/v1/addresses/**",
+                "/api/v1/cart/**",
+                "/api/v1/orders/**",
+                "/api/v1/checkout/**",
+                "/api/v1/reviews/order-detail/**"
+        };
     }
 
     @Bean
