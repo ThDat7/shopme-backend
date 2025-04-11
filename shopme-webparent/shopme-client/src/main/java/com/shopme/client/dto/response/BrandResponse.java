@@ -9,12 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryResponse {
+public class BrandResponse {
     private Integer id;
     private String name;
     private String image;
 
-    private Integer parentId;
     private long productCount;
-    private boolean hasChildren;
 }

@@ -6,14 +6,12 @@ import com.shopme.client.dto.response.ListCategoryResponse;
 import com.shopme.common.entity.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
-    @Mapping(target = "image", ignore = true)
-    CategoryResponse toCategoryResponse(Category category);
-
     ListCategoryResponse toListCategoryResponse(Set<CategoryResponse> categories, Set<CategoryBreadcrumbResponse> breadcrumbs);
 
     CategoryBreadcrumbResponse toCategoryBreadcrumbResponse(Category category);
