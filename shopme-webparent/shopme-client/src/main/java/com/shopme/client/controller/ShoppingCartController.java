@@ -31,8 +31,13 @@ public class ShoppingCartController {
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse deleteCartItem(@PathVariable Integer id) {
+    public ApiResponse<Void> deleteCartItem(@PathVariable Integer id) {
         shoppingCartService.deleteCartItem(id);
         return ApiResponse.ok();
+    }
+
+    @PostMapping("/sync")
+    public ApiResponse<List<CartItemResponse>> syncCartItems(@RequestBody List<CartItemRequest> localCartItems) {
+        return ApiResponse.ok(shoppingCartService.syncCartItems(localCartItems));
     }
 }

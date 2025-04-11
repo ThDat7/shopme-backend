@@ -13,4 +13,6 @@ public interface ShoppingCartService {
     CartItemResponse updateQuantity(CartItemRequest request);
 
     void deleteCartItem(Integer id);
+
+    List<CartItemResponse> syncCartItems(List<CartItemRequest> localCartItems);
 }
