@@ -3,6 +3,15 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Local configuration file
+.env.dev
+
+# Local images file
+*/brand-logos
+*/category-images
+*/product-images
+*/user-photos
+
 ### IntelliJ IDEA ###
 .idea
 #.idea/modules.xml

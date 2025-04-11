@@ -9,11 +9,26 @@
     </parent>
 
     <artifactId>shopme-admin</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>shopme-admin</name>
     <description>shopme-admin</description>
 
-    <dependencies>
-    </dependencies>
-
+    <build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>com.shopme.admin.ShopmeAdminApplication</mainClass>
+					<executable>true</executable>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
