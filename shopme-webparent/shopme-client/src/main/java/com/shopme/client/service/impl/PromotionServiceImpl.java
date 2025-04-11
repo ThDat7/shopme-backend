@@ -1,7 +1,6 @@
 package com.shopme.client.service.impl;
 
-import com.shopme.client.dto.response.PromotionDetailResponse;
-import com.shopme.client.dto.response.PromotionIdWithTypeResponse;
+import com.shopme.client.dto.response.*;
 import com.shopme.client.mapper.PromotionMapper;
 import com.shopme.client.repository.PromotionProductRepository;
 import com.shopme.client.repository.PromotionRepository;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +33,12 @@ public class PromotionServiceImpl implements PromotionService {
                 .orElseThrow(() -> new RuntimeException("Promotion not found with id: " + id));
 
         return promotionMapper.toPromotionDetailResponse(promotion);
+    }
+
+    @Override
+    public ListResponse<ProductListResponse> getProductsByPromotionId(Integer id, Map<String, String> params) {
+        params.put("promotionId", id.toString());
+
+        return productService.listByPage(params);
     }
 }
