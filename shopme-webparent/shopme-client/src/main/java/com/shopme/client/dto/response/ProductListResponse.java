@@ -18,7 +18,7 @@ public class ProductListResponse {
     private float discountPercent;
     private int discountPrice;
 
-    private float averageRating;
-    private int reviewCount;
-    private int saleCount;
+    private double averageRating;
+    private long reviewCount;
+    private long saleCount;
 }

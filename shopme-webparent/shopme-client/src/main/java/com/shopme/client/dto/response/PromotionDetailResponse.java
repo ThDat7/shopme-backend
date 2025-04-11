@@ -21,5 +21,4 @@ public class PromotionDetailResponse {
     private LocalDateTime endDate;
     private Boolean active;
     private PromotionType type;
-    private List<PromotionProductResponse> products;
 }
