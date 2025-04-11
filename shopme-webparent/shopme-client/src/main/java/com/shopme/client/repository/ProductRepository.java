@@ -1,6 +1,8 @@
 package com.shopme.client.repository;
 
+import com.shopme.client.repository.projection.ProductDetailProjection;
 import com.shopme.common.entity.Product;
+import com.shopme.common.entity.Promotion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
@@ -23,7 +26,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "COUNT(DISTINCT od.id) AS saleCount FROM Product p " +
             "LEFT JOIN OrderDetail od ON od.product.id = p.id " +
             "LEFT JOIN Review r ON r.orderDetail.id = od.id " +
-            "WHERE p.name LIKE :keyword OR p.shortDescription LIKE :keyword GROUP BY p.id")
+            "WHERE p.name LIKE :keyword OR p.description LIKE :keyword GROUP BY p.id")
     Page<Object[]> search(String keyword, Pageable pageable);
 
     @Query("SELECT p.id, p.name, p.price, p.discountPercent, p.mainImage, " +
@@ -72,4 +75,25 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "GROUP BY p.id " +
             "ORDER BY p.discountPercent DESC")
     Page<Object[]> getTopDiscounted(Pageable pageable);
+
+    @Query("SELECT DISTINCT p FROM Product p " +
+            "JOIN PromotionProduct pp ON p.id = pp.product.id " +
+            "JOIN pp.promotion prom " +
+            "WHERE prom = :promotion")
+    Page<Product> findByPromotion(@Param("promotion") Promotion promotion, Pageable pageable);
+
+    @Query("SELECT p.id AS id, p.name AS name, p.alias AS alias, p.description AS description, p.inStock AS inStock, " +
+            "p.price AS price, p.discountPercent AS discountPercent, " +
+            "p.length AS length, p.width AS width, p.height AS height, p.weight AS weight, " +
+            "p.mainImage AS mainImage, " +
+            "p.category.id AS categoryId, p.category.name AS category, p.brand.name AS brand, " +
+            "COALESCE(AVG(r.rating), 0) AS averageRating, " +
+            "COUNT(DISTINCT r.id) AS reviewCount, " +
+            "COUNT(DISTINCT od.id) AS saleCount " +
+            "FROM Product p " +
+            "LEFT JOIN OrderDetail od ON od.product.id = p.id " +
+            "LEFT JOIN Review r ON r.orderDetail.id = od.id " +
+            "WHERE p.id = :id " +
+            "GROUP BY p.id")
+    Optional<ProductDetailProjection> getProductDetail(@Param("id") Integer id);
 }

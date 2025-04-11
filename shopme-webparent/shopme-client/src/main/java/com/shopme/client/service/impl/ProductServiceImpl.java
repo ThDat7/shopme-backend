@@ -3,8 +3,12 @@ package com.shopme.client.service.impl;
 import com.nimbusds.jose.util.Pair;
 import com.shopme.client.dto.request.ProductFilterType;
 import com.shopme.client.dto.response.*;
+import com.shopme.client.exception.type.ProductNotFoundException;
 import com.shopme.client.mapper.ProductMapper;
+import com.shopme.client.repository.ProductDetailRepository;
+import com.shopme.client.repository.ProductImageRepository;
 import com.shopme.client.repository.ProductRepository;
+import com.shopme.client.repository.projection.ProductDetailProjection;
 import com.shopme.client.service.CategoryService;
 import com.shopme.client.service.FileUploadService;
 import com.shopme.client.service.ProductPriceService;
@@ -39,6 +43,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductPriceService productPriceService;
     private final CategoryService categoryService;
     private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
+    private final ProductDetailRepository productDetailRepository;
     private final ProductMapper productMapper;
 
     private Pageable getPageableFromParams(Map<String, String> params) {
@@ -56,9 +62,9 @@ public class ProductServiceImpl implements ProductService {
         return fileUploadService.getProductMainImageUrl(productId, mainImage);
     }
 
-    private Set<String> getProductImageResponses(Product product) {
-        return product.getImages().stream()
-                .map(image -> fileUploadService.getProductImagesUrl(product.getId(), image.getName()))
+    private Set<String> getProductImageResponses(Integer productId, Set<ProductImage> images) {
+        return images.stream()
+                .map(image -> fileUploadService.getProductImagesUrl(productId, image.getName()))
                 .collect(Collectors.toSet());
     }
 
@@ -355,20 +361,51 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
+    private ListResponse<ProductListResponse> productPageToListProductResponse(Page<Product> productPage) {
+        List<ProductListResponse> productListResponses = productPage.getContent().stream()
+                .map(product -> {
+                    var productDto = productMapper.toProductListResponse(product);
+                    productDto.setMainImage(getProductMainImageURL(product.getId(), product.getMainImage()));
+
+                    ProductPriceResponse productPriceResponse = productPriceService
+                            .calculateProductPriceResponse(product.getId());
+                    productDto.setPrice(productPriceResponse.getPrice());
+                    productDto.setDiscountPercent(productPriceResponse.getDiscountPercent());
+                    productDto.setDiscountPrice(productPriceResponse.getDiscountPrice());
+
+                    return productDto;
+                })
+                .collect(Collectors.toList());
+
+        return ListResponse.<ProductListResponse>builder()
+                .content(productListResponses)
+                .totalPages(productPage.getTotalPages())
+                .build();
+    }
+
     @Override
     public ProductDetailResponse getProductDetail(Integer id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        ProductDetailProjection productProject = productRepository.getProductDetail(id)
+                .orElseThrow(ProductNotFoundException::new);
         Set<CategoryBreadcrumbResponse> categoryBreadcrumbs = categoryService
-                .findParentCategories(product.getCategory().getId());
+                .findParentCategories(productProject.getCategoryId());
 
-        var productDto = productMapper.toProductDetailResponse(product);
-        productDto.setMainImage(getProductMainImageURL(product.getId(), product.getMainImage()));
-        productDto.setImages(getProductImageResponses(product));
+        var productDto = productMapper.toProductDetailResponse(productProject);
+
+        var productImages = productImageRepository.findAllByProductId(id);
+        productDto.setImages(productImages.stream()
+                .map(image -> fileUploadService.getProductImagesUrl(id, image.getName()))
+                .collect(Collectors.toSet()));
+        var productDetails = productDetailRepository.findAllByProductId(id);
+        productDto.setDetails(productDetails.stream()
+                .map(productMapper::toProductSpecificResponse)
+                .toList());
+
+        productDto.setMainImage(getProductMainImageURL(productProject.getId(), productProject.getMainImage()));
         productDto.setBreadcrumbs(categoryBreadcrumbs);
 
         ProductPriceResponse productPriceResponse = productPriceService
-                .calculateProductPriceResponse(product.getId());
+                .calculateProductPriceResponse(productProject.getId());
         productDto.setPrice(productPriceResponse.getPrice());
         productDto.setDiscountPercent(productPriceResponse.getDiscountPercent());
         productDto.setDiscountPrice(productPriceResponse.getDiscountPrice());
@@ -382,6 +419,8 @@ public class ProductServiceImpl implements ProductService {
                     ProductListResponse productDto = ProductListResponse.builder()
                             .id((Integer) product[0])
                             .name((String) product[1])
+//                            .price((int) product[2])
+//                            .discountPercent(((Float) product[3]))
                             .mainImage((String) product[4])
                             .averageRating(((Double) product[5]).floatValue())
                             .reviewCount(((Long) product[6]).intValue())
@@ -422,7 +461,6 @@ public class ProductServiceImpl implements ProductService {
 
 //        trending last 7 days
         Date start = new Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000);
-
         Date end = new Date();
         Page<Object[]> productPage = productRepository.getTrending(pageable, start, end);
         return getListProductResponse(productPage);

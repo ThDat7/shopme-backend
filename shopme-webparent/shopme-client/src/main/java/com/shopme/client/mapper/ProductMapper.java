@@ -2,7 +2,9 @@ package com.shopme.client.mapper;
 
 import com.shopme.client.dto.response.ProductDetailResponse;
 import com.shopme.client.dto.response.ProductListResponse;
+import com.shopme.client.dto.response.ProductPriceResponse;
 import com.shopme.client.dto.response.ProductSpecificResponse;
+import com.shopme.client.repository.projection.ProductDetailProjection;
 import com.shopme.common.entity.Product;
 import com.shopme.common.entity.ProductDetail;
 import com.shopme.common.entity.Review;
@@ -28,10 +30,13 @@ public interface ProductMapper {
 
     @Mapping(target = "mainImage", ignore = true)
     @Mapping(target = "images", ignore = true)
+    @Mapping(target = "details", ignore = true)
+    @Mapping(target = "discountPrice", ignore = true)
     @Mapping(target = "breadcrumbs", ignore = true)
-    @Mapping(target = "brand", source = "brand.name")
-    @Mapping(target = "category", source = "category.name")
-    ProductDetailResponse toProductDetailResponse(Product product);
+    ProductDetailResponse toProductDetailResponse(ProductDetailProjection productProject);
+
+
+    ProductPriceResponse toProductPriceResponse(Integer price, Float discountPercent, Integer discountPrice);
 
     ProductSpecificResponse toProductSpecificResponse(ProductDetail productDetail);
 }

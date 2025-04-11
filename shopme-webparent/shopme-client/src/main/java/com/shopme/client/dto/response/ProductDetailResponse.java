@@ -15,17 +15,16 @@ public class ProductDetailResponse {
     private String name;
     private String alias;
 
-    private String shortDescription;
-    private String fullDescription;
+    private String description;
 
 //    private Date createdTime;
 //    private Date updatedTime;
 
     private boolean inStock;
 
-    private int cost;
     private int price;
     private float discountPercent;
+    private int discountPrice;
 
     private float length;
     private float width;
@@ -35,6 +34,10 @@ public class ProductDetailResponse {
     private String mainImage;
     private String category;
     private String brand;
+
+    private double averageRating;
+    private long reviewCount;
+    private long saleCount;
 
     private Set<String> images;
     private List<ProductSpecificResponse> details;
