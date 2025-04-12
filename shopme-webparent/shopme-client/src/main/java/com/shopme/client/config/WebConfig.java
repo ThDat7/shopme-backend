@@ -31,6 +31,7 @@ public class WebConfig implements WebMvcConfigurer {
         exposeDirectory("../category-images", registry);
         exposeDirectory("../brand-logos", registry);
         exposeDirectory("../product-images", registry);
+        exposeDirectory("../carousel-images", registry);
     }
 
     private void exposeDirectory(String pathPattern, ResourceHandlerRegistry registry) {

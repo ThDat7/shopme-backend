@@ -9,4 +9,6 @@ public interface FileUploadService {
     String getProductMainImageUrl(Integer productId, String image);
 
     String getProductImagesUrl(Integer productId, String image);
+
+    String getCarouselImageUrl(Integer carouselId, String image);
 }

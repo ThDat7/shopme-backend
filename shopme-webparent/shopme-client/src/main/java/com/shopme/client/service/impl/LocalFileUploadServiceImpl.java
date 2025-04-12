@@ -45,4 +45,8 @@ public class LocalFileUploadServiceImpl implements FileUploadService {
         return String.format("%s/%s/%s/%s/%s", host, suffixProductMainImages, productId, suffixProductImages, image);
     }
 
+    @Override
+    public String getCarouselImageUrl(Integer carouselId, String image) {
+        return String.format("%s/%s/%s/%s", host, "carousel-images", carouselId, image);
+    }
 }
