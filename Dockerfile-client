@@ -16,5 +16,10 @@ RUN mvn -B package -DskipTests
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 COPY --from=build /app/shopme-webparent/shopme-client/target/*.jar ./app.jar
+
+COPY ./shopme-webparent/product-images ./product-images
+COPY ./shopme-webparent/category-images ./category-images
+COPY ./shopme-webparent/brand-logos ./brand-logos
+COPY ./shopme-webparent/carousel-images ./carousel-images
 EXPOSE 80
 ENTRYPOINT ["java", "-jar", "app.jar"]

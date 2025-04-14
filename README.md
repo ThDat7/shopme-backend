@@ -40,6 +40,12 @@ Some of the features Shopme provides are:
 
 You can set up Shopme by following the [prerequisites](/docs/1_prerequisites.md) and [installation guide](/docs/2_installation.md).
 
+## 🌐 Live Demo
+
+The application is available online at the following URLs:
+
+- **Client Application**: [http://srv791694.hstgr.cloud](http://srv791694.hstgr.cloud)
+
 ## 📚 Everything else
 
 ### 📖 Documentation

@@ -4,8 +4,6 @@ services:
   mysql:
     image: mysql:8.0
     container_name: shopme-mysql
-    env_file:
-      - .env.dev
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
@@ -29,16 +27,17 @@ services:
     container_name: shopme-admin
     restart: unless-stopped
     ports:
-      - '8080:8080'
+      - '${ADMIN_EXTERNAL_PORT}:8080'
     depends_on:
       mysql:
         condition: service_healthy
-    env_file:
-      - .env.dev
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASS}
+      SPRING_PROFILES_ACTIVE: ${ADMIN_SPRING_PROFILE}
+      FILE_UPLOAD_HOST: ${FILE_UPLOAD_HOST}
+      FRONTEND_HOST: ${ADMIN_FRONTEND_HOST}
     networks:
       - shopme-network
 
@@ -48,18 +47,18 @@ services:
     container_name: shopme-client
     restart: unless-stopped
     ports:
-      - '80:80'
+      - '${CLIENT_EXTERNAL_PORT}:80'
     depends_on:
       mysql:
         condition: service_healthy
-    env_file:
-      - .env.dev
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASS}
       SPRING_PROFILES_ACTIVE: ${CLIENT_SPRING_PROFILE}
+      FILE_UPLOAD_HOST: ${FILE_UPLOAD_HOST}
       PUBLIC_HOST: ${CLIENT_PUBLIC_HOST}
+      FRONTEND_HOST: ${CLIENT_FRONTEND_HOST}
     networks:
       - shopme-network
 

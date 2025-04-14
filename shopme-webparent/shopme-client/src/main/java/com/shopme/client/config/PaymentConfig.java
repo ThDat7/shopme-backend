@@ -30,7 +30,7 @@ public class PaymentConfig {
     public PayOS payOS() {
         List<Setting> paymentSettings = settingService.getSettingsByCategory(SettingCategory.PAYMENT);
 
-        if (paymentSettings == null)
+        if (paymentSettings.isEmpty())
             return new PayOS("", "", "");
 
         String clientId = getSettingValue(paymentSettings, SettingKey.PAYOS_CLIENT_ID);

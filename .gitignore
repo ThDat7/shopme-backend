@@ -5,6 +5,7 @@ target/
 
 # Local configuration file
 .env.dev
+.env.prod
 
 # Local images file
 */brand-logos
