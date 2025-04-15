@@ -16,5 +16,6 @@ RUN mvn -B package -DskipTests
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 COPY --from=build /app/shopme-webparent/shopme-admin/target/*.jar ./app.jar
-EXPOSE 8080
+
+EXPOSE ${PORT}
 ENTRYPOINT ["java", "-jar", "app.jar"]
