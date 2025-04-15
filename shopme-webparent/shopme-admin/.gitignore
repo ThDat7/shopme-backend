@@ -6,6 +6,7 @@ target/
 
 # Config file
 application-dev.properties
+application-prod.properties
 
 ### STS ###
 .apt_generated
