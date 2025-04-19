@@ -16,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,6 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = "categoryBreadcrumbs", key = "#id")
     public Set<CategoryBreadcrumbResponse> findParentCategories(Integer id) {
         List<Object[]> categories = categoryRepository.findParentCategories(id);
 
@@ -68,6 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = "rootCategories", key = "#params.hashCode()")
     public ListResponse<CategoryResponse> listRootCategories(Map<String, String> params) {
         int page = Integer.parseInt(params.getOrDefault("page", "0"));
         int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(10)));
@@ -96,6 +100,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = "category", key = "#id")
     public CategoryResponse getCategory(Integer id) {
         Object[] category = categoryRepository.findCategoriesWithProductCount(id)
                 .orElseThrow(CategoryNotFoundException::new);
@@ -103,6 +108,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = "categoryChildren", key = "#id")
     public List<CategoryResponse> getChildCategories(Integer id) {
         // First find all direct child category IDs of the given category
         List<Integer> childCategoryIds = categoryRepository.findAllChildCategoryIds(id);

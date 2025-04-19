@@ -9,6 +9,7 @@ import com.shopme.client.service.ProductPriceService;
 import com.shopme.common.entity.Product;
 import com.shopme.common.entity.PromotionProduct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class ProductPriceServiceImpl implements ProductPriceService {
     }
 
     @Override
+    @Cacheable(value = "productPriceCache", key = "#productId")
     public ProductPriceResponse calculateProductPriceResponse(Integer productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(

@@ -6,6 +6,7 @@ import com.shopme.client.repository.CarouselImageRepository;
 import com.shopme.client.service.CarouselImageService;
 import com.shopme.client.service.FileUploadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class CarouselImageServiceImpl implements CarouselImageService {
     }
 
     @Override
+    @Cacheable(value = "carouselImages")
     public List<CarouselImageResponse> getCarouselImagesEnabled() {
         return carouselImageRepository.findAllByEnabledTrue()
                 .stream()

@@ -10,6 +10,8 @@ import com.shopme.common.entity.District;
 import com.shopme.common.entity.Province;
 import com.shopme.common.entity.Ward;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +25,7 @@ public class LocationServiceImpl implements LocationService {
     private final UtilMapper utilMapper;
 
     @Override
+    @Cacheable(value = "cityCache")
     public List<FormSelectResponse> listProvinces() {
         List<Province> provinces = provinceRepository.findAll();
         return provinces.stream()
@@ -31,6 +34,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    @Cacheable(value = "provinceCache", key = "#provinceId")
     public List<FormSelectResponse> listDistrictsByProvinceId(Integer provinceId) {
         List<District> districts = districtRepository.findAllByProvinceId(provinceId);
         return districts.stream()
@@ -39,6 +43,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    @Cacheable(value = "districtCache", key = "#districtId")
     public List<FormSelectResponse> listWardsByDistrictId(Integer districtId) {
         List<Ward> wards = wardRepository.findAllByDistrictId(districtId);
         return wards.stream()

@@ -8,6 +8,7 @@ import com.shopme.client.service.BrandService;
 import com.shopme.client.service.FileUploadService;
 import com.shopme.common.entity.Brand_;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @Cacheable(value = "brandCache", key = "#params.hashCode()")
     public ListResponse<BrandResponse> getBrands(Map<String, String> params) {
         int page = Integer.parseInt(params.getOrDefault("page", "0"));
         int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(10)));

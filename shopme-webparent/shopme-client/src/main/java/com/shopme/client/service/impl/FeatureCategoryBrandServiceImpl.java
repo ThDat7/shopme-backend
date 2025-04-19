@@ -6,6 +6,7 @@ import com.shopme.client.repository.FeatureCategoryBrandRepository;
 import com.shopme.client.service.FeatureCategoryBrandService;
 import com.shopme.common.entity.FeatureCategoryBrand;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class FeatureCategoryBrandServiceImpl implements FeatureCategoryBrandServ
     }
 
     @Override
+    @Cacheable(value = "featureCategoryBrand")
     public List<FeatureCategoryBrandResponse> getAll() {
         return featureCategoryBrandRepository.findAll().stream()
                 .map(feature -> {

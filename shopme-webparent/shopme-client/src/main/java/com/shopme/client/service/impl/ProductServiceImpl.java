@@ -24,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -203,6 +205,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "productListings", key = "T(org.springframework.util.StringUtils).collectionToCommaDelimitedString(#params.entrySet())")
     public ListResponse<ProductListResponse> listByPage(Map<String, String> params) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<ProductListResponse> cq = cb.createQuery(ProductListResponse.class);
@@ -384,6 +387,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "productDetail", key = "#id")
     public ProductDetailResponse getProductDetail(Integer id) {
         ProductDetailProjection productProject = productRepository.getProductDetail(id)
                 .orElseThrow(ProductNotFoundException::new);
@@ -449,6 +453,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "bestSellers")
     public ListResponse<ProductListResponse> getBestSellerProducts() {
         Pageable pageable = PageRequest.of(0, 4);
         Page<Object[]> productPage = productRepository.getBestSelling(pageable);
@@ -456,6 +461,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "trendingProducts")
     public ListResponse<ProductListResponse> getTrendingProducts(Map<String, String> params) {
         Pageable pageable = PageRequest.of(0, 4);
 
@@ -467,6 +473,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "topRatedProducts") 
     public ListResponse<ProductListResponse> getTopRatedProducts(Map<String, String> params) {
         Pageable pageable = PageRequest.of(0, 4);
         Page<Object[]> productPage = productRepository.getTopRated(pageable);
@@ -474,6 +481,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "discountedProducts")
     public ListResponse<ProductListResponse> getTopDiscountedProducts(Map<String, String> params) {
         Pageable pageable = PageRequest.of(0, 4);
         Page<Object[]> productPage = productRepository.getTopDiscounted(pageable);
